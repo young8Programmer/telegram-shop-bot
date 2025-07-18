@@ -19,9 +19,9 @@ export class UserService {
         user = this.userRepository.create({
           telegramId: dto.telegramId,
           fullName: dto.fullName,
-          language: 'uz', // Standart til o‘zbek
+          language: null,
           createdAt: new Date(),
-        });
+        } as User); // Type assertion bilan xatni tuzatamiz
         user = await this.userRepository.save(user);
       }
       return user;

@@ -20,8 +20,8 @@ export class User {
   @Column({ default: false })
   isAdmin: boolean;
 
-  @Column({ default: 'uz', nullable: false })
-  language: string;
+  @Column({ type: 'varchar', nullable: true })
+  language: string | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

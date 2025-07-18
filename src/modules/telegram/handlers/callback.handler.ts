@@ -37,10 +37,9 @@ export class CallbackHandler {
       try {
         this.logger.log(`Received callback: ${data}, telegramId: ${telegramId}`);
         const user = await this.userService.findByTelegramId(telegramId);
-        language = user?.language || 'uz'; // Agar user topilmasa, 'uz' ishlatiladi
+        language = user?.language || 'uz';
         this.logger.log(`User language set to: ${language}`);
 
-        // Admin faqat huquqlari bilan cheklangan operatsiyalar
         if (
           data.startsWith('add_') ||
           data.startsWith('edit_') ||
@@ -57,26 +56,39 @@ export class CallbackHandler {
           }
         }
 
-        // Asosiy callback handlerlari
         if (data === 'add_category') {
-          const message = language === 'uz' ? '📋 Kategoriya nomini kiriting:' : '📋 Введите название категории:';
+          const message = language === 'uz' ? '📋 Kategoriya nomini kiriting (o‘zbekcha):' : '📋 Введите название категории (на узбекском):';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
           bot.once('message', async (msgName) => {
             const name = msgName.text;
-            const descMessage = language === 'uz' ? '📝 Kategoriya tavsifini kiriting:' : '📝 Введите описание категории:';
-            await this.telegramService.sendMessage(chatId, descMessage, { reply_markup: { force_reply: true } });
-            bot.once('message', async (msgDesc) => {
-              try {
-                await this.categoryService.create({ name, description: msgDesc.text });
-                const successMessage = language === 'uz' ? '✅ Kategoriya qo‘shildi!' : '✅ Категория добавлена!';
-                await this.telegramService.sendMessage(chatId, successMessage, {
-                  reply_markup: getAdminKeyboard(language),
+            const messageRu = language === 'uz' ? '📋 Kategoriya nomini kiriting (ruscha):' : '📋 Введите название категории (на русском):';
+            await this.telegramService.sendMessage(chatId, messageRu, { reply_markup: { force_reply: true } });
+            bot.once('message', async (msgNameRu) => {
+              const nameRu = msgNameRu.text;
+              const descMessage = language === 'uz' ? '📝 Kategoriya tavsifini kiriting (o‘zbekcha):' : '📝 Введите описание категории (на узбекском):';
+              await this.telegramService.sendMessage(chatId, descMessage, { reply_markup: { force_reply: true } });
+              bot.once('message', async (msgDesc) => {
+                const descMessageRu = language === 'uz' ? '📝 Kategoriya tavsifini kiriting (ruscha, ixtiyoriy):' : '📝 Введите описание категории (на русском, необязательно):';
+                await this.telegramService.sendMessage(chatId, descMessageRu, { reply_markup: { force_reply: true } });
+                bot.once('message', async (msgDescRu) => {
+                  try {
+                    await this.categoryService.create({
+                      name: name.trim(),
+                      nameRu: nameRu.trim(),
+                      description: msgDesc.text.trim(),
+                      descriptionRu: msgDescRu.text.trim() || null,
+                    });
+                    const successMessage = language === 'uz' ? '✅ Kategoriya qo‘shildi!' : '✅ Категория добавлена!';
+                    await this.telegramService.sendMessage(chatId, successMessage, {
+                      reply_markup: getAdminKeyboard(language),
+                    });
+                  } catch (error) {
+                    this.logger.error(`Error in add_category: ${error.message}`);
+                    const errorMessage = language === 'uz' ? '❌ Kategoriya qo‘shishda xato yuz berdi.' : '❌ Ошибка при добавлении категории.';
+                    await this.telegramService.sendMessage(chatId, errorMessage, {});
+                  }
                 });
-              } catch (error) {
-                this.logger.error(`Error in add_category: ${error.message}`);
-                const errorMessage = language === 'uz' ? '❌ Kategoriya qo‘shishda xato yuz berdi.' : '❌ Ошибка при добавлении категории.';
-                await this.telegramService.sendMessage(chatId, errorMessage, {});
-              }
+              });
             });
           });
         } else if (data === 'view_categories') {
@@ -88,36 +100,50 @@ export class CallbackHandler {
         } else if (data === 'edit_category') {
           const categories = await this.categoryService.findAll();
           const keyboard = categories.map((cat) => [
-            { text: cat.name, callback_data: `edit_cat_${cat.id}` },
+            { text: language === 'uz' ? cat.name : cat.nameRu || cat.name, callback_data: `edit_cat_${cat.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan kategoriyani tanlang:' : '✏️ Выберите категорию для редактирования:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { inline_keyboard: keyboard } });
         } else if (data.startsWith('edit_cat_')) {
           const categoryId = parseInt(data.split('_')[2]);
-          const message = language === 'uz' ? '📋 Yangi kategoriya nomini kiriting:' : '📋 Введите новое название категории:';
+          const message = language === 'uz' ? '📋 Yangi kategoriya nomini kiriting (o‘zbekcha):' : '📋 Введите новое название категории (на узбекском):';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
           bot.once('message', async (msgName) => {
             const name = msgName.text;
-            const descMessage = language === 'uz' ? '📝 Yangi kategoriya tavsifini kiriting:' : '📝 Введите новое описание категории:';
-            await this.telegramService.sendMessage(chatId, descMessage, { reply_markup: { force_reply: true } });
-            bot.once('message', async (msgDesc) => {
-              try {
-                await this.categoryService.update(categoryId, { name, description: msgDesc.text });
-                const successMessage = language === 'uz' ? '✅ Kategoriya yangilandi!' : '✅ Категория обновлена!';
-                await this.telegramService.sendMessage(chatId, successMessage, {
-                  reply_markup: getAdminKeyboard(language),
+            const messageRu = language === 'uz' ? '📋 Yangi kategoriya nomini kiriting (ruscha):' : '📋 Введите новое название категории (на русском):';
+            await this.telegramService.sendMessage(chatId, messageRu, { reply_markup: { force_reply: true } });
+            bot.once('message', async (msgNameRu) => {
+              const nameRu = msgNameRu.text;
+              const descMessage = language === 'uz' ? '📝 Yangi kategoriya tavsifini kiriting (o‘zbekcha):' : '📝 Введите новое описание категории (на узбекском):';
+              await this.telegramService.sendMessage(chatId, descMessage, { reply_markup: { force_reply: true } });
+              bot.once('message', async (msgDesc) => {
+                const descMessageRu = language === 'uz' ? '📝 Yangi kategoriya tavsifini kiriting (ruscha, ixtiyoriy):' : '📝 Введите новое описание категории (на русском, необязательно):';
+                await this.telegramService.sendMessage(chatId, descMessageRu, { reply_markup: { force_reply: true } });
+                bot.once('message', async (msgDescRu) => {
+                  try {
+                    await this.categoryService.update(categoryId, {
+                      name: name.trim(),
+                      nameRu: nameRu.trim(),
+                      description: msgDesc.text.trim(),
+                      descriptionRu: msgDescRu.text.trim() || null,
+                    });
+                    const successMessage = language === 'uz' ? '✅ Kategoriya yangilandi!' : '✅ Категория обновлена!';
+                    await this.telegramService.sendMessage(chatId, successMessage, {
+                      reply_markup: getAdminKeyboard(language),
+                    });
+                  } catch (error) {
+                    this.logger.error(`Error in edit_category: ${error.message}`);
+                    const errorMessage = language === 'uz' ? '❌ Kategoriyani tahrirlashda xato yuz berdi.' : '❌ Ошибка при редактировании категории.';
+                    await this.telegramService.sendMessage(chatId, errorMessage, {});
+                  }
                 });
-              } catch (error) {
-                this.logger.error(`Error in edit_category: ${error.message}`);
-                const errorMessage = language === 'uz' ? '❌ Kategoriyani tahrirlashda xato yuz berdi.' : '❌ Ошибка при редактировании категории.';
-                await this.telegramService.sendMessage(chatId, errorMessage, {});
-              }
+              });
             });
           });
         } else if (data === 'delete_category') {
           const categories = await this.categoryService.findAll();
           const keyboard = categories.map((cat) => [
-            { text: cat.name, callback_data: `delete_cat_${cat.id}` },
+            { text: language === 'uz' ? cat.name : cat.nameRu || cat.name, callback_data: `delete_cat_${cat.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan kategoriyani tanlang:' : '🗑 Выберите категорию для удаления:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { inline_keyboard: keyboard } });
@@ -130,12 +156,12 @@ export class CallbackHandler {
           });
         } else if (data === 'add_product') {
           const message = language === 'uz'
-            ? '📦 Mahsulot ma‘lumotlarini kiriting (nomi;narxi;tasviri;rasm URL;kategoriya ID;ombordagi soni):'
-            : '📦 Введите данные товара (название;цена;описание;URL изображения;ID категории;кол-во на складе):';
+            ? '📦 Mahsulot ma‘lumotlarini kiriting (nomi o‘zbekcha;nom ruscha;narxi;tasviri o‘zbekcha;tasviri ruscha;rasm URL;kategoriya ID;ombordagi soni):'
+            : '📦 Введите данные товара (название на узбекском;название на русском;цена;описание на узбекском;описание на русском;URL изображения;ID категории;кол-во на складе):';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
           bot.once('message', async (msg) => {
             try {
-              const [name, price, description, imageUrl, categoryId, stock] = msg.text.split(';');
+              const [name, nameRu, price, description, descriptionRu, imageUrl, categoryId, stock] = msg.text.split(';');
               const parsedCategoryId = parseInt(categoryId.trim());
               const parsedStock = parseInt(stock.trim());
               if (isNaN(parsedCategoryId) || isNaN(parsedStock)) {
@@ -155,8 +181,10 @@ export class CallbackHandler {
               }
               await this.productService.create({
                 name: name.trim(),
+                nameRu: nameRu.trim(),
                 price: parseFloat(price.trim()),
                 description: description.trim(),
+                descriptionRu: descriptionRu.trim() || null,
                 imageUrl: imageUrl.trim(),
                 categoryId: parsedCategoryId,
                 stock: parsedStock,
@@ -181,19 +209,19 @@ export class CallbackHandler {
         } else if (data === 'edit_product') {
           const products = await this.productService.findAll();
           const keyboard = products.map((prod) => [
-            { text: prod.name, callback_data: `edit_prod_${prod.id}` },
+            { text: language === 'uz' ? prod.name : prod.nameRu || prod.name, callback_data: `edit_prod_${prod.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan mahsulotni tanlang:' : '✏️ Выберите товар для редактирования:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { inline_keyboard: keyboard } });
         } else if (data.startsWith('edit_prod_')) {
           const productId = parseInt(data.split('_')[2]);
           const message = language === 'uz'
-            ? '📦 Yangi mahsulot ma‘lumotlarini kiriting (nomi;narxi;tasviri;rasm URL;kategoriya ID;ombordagi soni):'
-            : '📦 Введите новые данные товара (название;цена;описание;URL изображения;ID категории;кол-во на складе):';
+            ? '📦 Yangi mahsulot ma‘lumotlarini kiriting (nomi o‘zbekcha;nom ruscha;narxi;tasviri o‘zbekcha;tasviri ruscha;rasm URL;kategoriya ID;ombordagi soni):'
+            : '📦 Введите новые данные товара (название на узбекском;название на русском;цена;описание на узбекском;описание на русском;URL изображения;ID категории;кол-во на складе):';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
           bot.once('message', async (msg) => {
             try {
-              const [name, price, description, imageUrl, categoryId, stock] = msg.text.split(';');
+              const [name, nameRu, price, description, descriptionRu, imageUrl, categoryId, stock] = msg.text.split(';');
               const parsedCategoryId = parseInt(categoryId.trim());
               const parsedStock = parseInt(stock.trim());
               if (isNaN(parsedCategoryId) || isNaN(parsedStock)) {
@@ -213,8 +241,10 @@ export class CallbackHandler {
               }
               await this.productService.update(productId, {
                 name: name.trim(),
+                nameRu: nameRu.trim(),
                 price: parseFloat(price.trim()),
                 description: description.trim(),
+                descriptionRu: descriptionRu.trim() || null,
                 imageUrl: imageUrl.trim(),
                 categoryId: parsedCategoryId,
                 stock: parsedStock,
@@ -232,7 +262,7 @@ export class CallbackHandler {
         } else if (data === 'delete_product') {
           const products = await this.productService.findAll();
           const keyboard = products.map((prod) => [
-            { text: prod.name, callback_data: `delete_prod_${prod.id}` },
+            { text: language === 'uz' ? prod.name : prod.nameRu || prod.name, callback_data: `delete_prod_${prod.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan mahsulotni tanlang:' : '🗑 Выберите товар для удаления:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { inline_keyboard: keyboard } });

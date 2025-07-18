@@ -11,6 +11,13 @@ export class Category {
 
   @Column()
   description: string;
+  
+  @Column({ nullable: true })
+  nameRu: string;
+
+  @Column({ nullable: true })
+  descriptionRu: string;
+
 
   @Column()
   createdAt: Date;

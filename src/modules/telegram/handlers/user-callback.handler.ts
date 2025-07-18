@@ -91,7 +91,7 @@ export class UserCallbackHandler {
           const categoryId = parseInt(data.split('_')[1]);
           const products = await this.productService.findByCategory(categoryId);
           const keyboard: TelegramBot.InlineKeyboardButton[][] = products.map((prod) => [
-            { text: `${prod.name} - ${prod.price} so‘m`, callback_data: `product_${prod.id}` },
+            { text: `${language === 'uz' ? prod.name : prod.nameRu || prod.name} - ${prod.price} so‘m`, callback_data: `product_${prod.id}` },
           ]);
           const message = language === 'uz' ? '📦 Mahsulotlar:' : '📦 Товары:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { inline_keyboard: keyboard } });
@@ -138,7 +138,7 @@ export class UserCallbackHandler {
                     longitude: msg.location.longitude,
                     addressDetails: msgDetails.text,
                   });
-                  const items = order.orderItems?.map((item) => `${item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
+                  const items = order.orderItems?.map((item) => `${language === 'uz' ? item.product.name : item.product.nameRu || item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
                   const message = language === 'uz'
                     ? `💳 Buyurtma yaratildi! Iltimos, quyidagi havola orqali to‘lovni amalga oshiring.\n` +
                       `  📋 ID: ${order.id}\n` +
@@ -214,7 +214,7 @@ export class UserCallbackHandler {
           await this.orderService.updateStatus(orderId, ORDER_STATUS.PAID);
           await this.orderService.update(orderId, { paymentType });
 
-          const items = order.orderItems?.map((item) => `${item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
+          const items = order.orderItems?.map((item) => `${language === 'uz' ? item.product.name : item.product.nameRu || item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
           const message = language === 'uz'
             ? `✅ Buyurtma tasdiqlandi!\n` +
               `  📋 ID: ${order.id}\n` +

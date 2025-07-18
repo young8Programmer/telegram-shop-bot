@@ -47,7 +47,7 @@ export class ProductService {
   }
 
   async findByCategory(categoryId: number): Promise<Product[]> {
-    return this.productRepository.find({ where: { category: { id: categoryId } } });
+    return this.productRepository.find({ where: { category: { id: categoryId } }, relations: ['category'] });
   }
 
   async update(id: number, dto: UpdateProductDto): Promise<Product> {

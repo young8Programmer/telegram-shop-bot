@@ -8,8 +8,8 @@ import { ORDER_STATUS } from "../../../common/constants";
 
 export function formatProductMessage(product: Product, language: string = 'uz'): string {
   return [
-    `${product.name}`,
-    `${product.description}`,
+    `${language === 'uz' ? product.name : product.nameRu || product.name}`,
+    `${language === 'uz' ? product.description : product.descriptionRu || product.description}`,
     `💸 ${language === 'uz' ? 'Narxi' : 'Цена'}: ${product.price} so‘m`,
     `📦 ${language === 'uz' ? 'Omborda' : 'На складе'}: ${product.stock} ${language === 'uz' ? 'dona' : 'шт.'}`,
   ].join('\n');
@@ -18,14 +18,14 @@ export function formatProductMessage(product: Product, language: string = 'uz'):
 export function formatCategoryList(categories: Category[], language: string = 'uz'): string {
   if (!categories.length) return language === 'uz' ? '❌ Kategoriyalar mavjud emas.' : '❌ Категории отсутствуют.';
   return categories
-    .map((cat) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${cat.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${cat.name}, <b>${language === 'uz' ? 'Tavsif' : 'Описание'}</b>: ${cat.description}`)
+    .map((cat) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${cat.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${language === 'uz' ? cat.name : cat.nameRu || cat.name}, <b>${language === 'uz' ? 'Tavsif' : 'Описание'}</b>: ${language === 'uz' ? cat.description : cat.descriptionRu || cat.description}`)
     .join('\n');
 }
 
 export function formatProductList(products: Product[], language: string = 'uz'): string {
   if (!products.length) return language === 'uz' ? '❌ Mahsulotlar mavjud emas.' : '❌ Товары отсутствуют.';
   return products
-    .map((prod) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${prod.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${prod.name}, 💸 <b>${language === 'uz' ? 'Narxi' : 'Цена'}</b>: ${prod.price} so‘m, 📌 <b>${language === 'uz' ? 'Kategoriya' : 'Категория'}</b>: ${prod.category?.name || 'N/A'}, 📦 <b>${language === 'uz' ? 'Omborda' : 'На складе'}</b>: ${prod.stock}`)
+    .map((prod) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${prod.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${language === 'uz' ? prod.name : prod.nameRu || prod.name}, 💸 <b>${language === 'uz' ? 'Narxi' : 'Цена'}</b>: ${prod.price} so‘m, 📌 <b>${language === 'uz' ? 'Kategoriya' : 'Категория'}</b>: ${language === 'uz' ? prod.category?.name : prod.category?.nameRu || prod.category?.name || 'N/A'}, 📦 <b>${language === 'uz' ? 'Omborda' : 'На складе'}</b>: ${prod.stock}`)
     .join('\n');
 }
 
@@ -39,7 +39,7 @@ export function formatUserList(users: User[], language: string = 'uz'): string {
 export function formatFeedbackList(feedbacks: Feedback[], language: string = 'uz'): string {
   if (!feedbacks.length) return language === 'uz' ? '❌ Feedbacklar mavjud emas.' : '❌ Отзывы отсутствуют.';
   return feedbacks
-    .map((fb) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${fb.id}, 📦 <b>${language === 'uz' ? 'Mahsulot' : 'Товар'}</b>: ${fb.product.name}, 👤 <b>${language === 'uz' ? 'Foydalanuvchi' : 'Пользователь'}</b>: ${fb.user?.fullName || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}, ⭐ <b>${language === 'uz' ? 'Reyting' : 'Рейтинг'}</b>: ${fb.rating}, 💬 <b>${language === 'uz' ? 'Izoh' : 'Комментарий'}</b>: ${fb.comment}`)
+    .map((fb) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${fb.id}, 📦 <b>${language === 'uz' ? 'Mahsulot' : 'Товар'}</b>: ${language === 'uz' ? fb.product.name : fb.product.nameRu || fb.product.name}, 👤 <b>${language === 'uz' ? 'Foydalanuvchi' : 'Пользователь'}</b>: ${fb.user?.fullName || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}, ⭐ <b>${language === 'uz' ? 'Reyting' : 'Рейтинг'}</b>: ${fb.rating}, 💬 <b>${language === 'uz' ? 'Izoh' : 'Комментарий'}</b>: ${fb.comment}`)
     .join('\n');
 }
 
@@ -47,7 +47,7 @@ export function formatOrderList(orders: Order[], language: string = 'uz'): strin
   if (!orders.length) return language === 'uz' ? '❌ Buyurtmalar mavjud emas.' : '❌ Заказы отсутствуют.';
   return orders
     .map((order) => {
-      const items = order.orderItems?.map((item) => `${item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
+      const items = order.orderItems?.map((item) => `${language === 'uz' ? item.product.name : item.product.nameRu || item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
       const delivery = order.deliveries && order.deliveries.length > 0
         ? [
             `${language === 'uz' ? '📍 <b>Manzil</b>' : '📍 <b>Адрес</b>'}: (${order.deliveries[0].latitude}, ${order.deliveries[0].longitude})`,

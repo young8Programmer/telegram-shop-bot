@@ -33,12 +33,12 @@ export class StartHandler {
           this.logger.log(`User found but language is missing in ${duration}ms`);
           await this.telegramService.sendMessage(
             chatId,
-            `🇺🇿 Iltimos, tilni tanlang:\n🇷🇺 Пожалуйста, выберите язык:`,
+            `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
             {
               reply_markup: {
                 inline_keyboard: [
                   [
-                    { text: '🇺🇿 O‘zbek', callback_data: 'lang_uz' },
+                    { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
                     { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
                   ],
                 ],
@@ -54,7 +54,7 @@ export class StartHandler {
             reply_markup: getMainKeyboard(true, user.language),
           });
         } else {
-          this.logger.log(`Existing user with phone and language in ${duration}ms`);
+          this.logger.log(`Existing user with phone in ${duration}ms`);
           const message = user.language === 'uz'
             ? `Qaytganingizdan xursandmiz, ${fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`
             : `Рады вашему возвращению, ${fullName}! 🛒 Пользуйтесь нашим магазином!`;
@@ -66,7 +66,7 @@ export class StartHandler {
         this.logger.error(`Error in /start: ${error.message}`);
         await this.telegramService.sendMessage(
           chatId,
-          '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.',
+          'Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.\nОшибка произошла, попробуйте позже.',
         );
       }
     });

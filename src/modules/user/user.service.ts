@@ -19,7 +19,7 @@ export class UserService {
       return await this.userRepository.save({
         telegramId: dto.telegramId,
         fullName: dto.fullName,
-        language: 'uz', // Standart til: O‘zbek
+        language: 'uz', // Standart til o‘zbek
         createdAt: new Date(),
       });
     } catch (error) {

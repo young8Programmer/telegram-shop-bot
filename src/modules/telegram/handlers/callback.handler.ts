@@ -32,18 +32,17 @@ export class CallbackHandler {
       const chatId = query.message.chat.id;
       const telegramId = query.from.id.toString();
       const data = query.data;
-      let language = 'uz'; // Standart til
+      let language = 'uz';
       try {
         this.logger.log(`Processing callback: ${data} for telegramId: ${telegramId}`);
         const user = await this.userService.findByTelegramId(telegramId);
         language = user.language || 'uz';
 
-        // Faqat admin uchun funksiyalar
         if (!user.isAdmin) {
           const message = language === 'uz'
             ? '❌ Bu amal faqat adminlar uchun mavjud.'
             : '❌ Это действие доступно только администраторам.';
-          await this.telegramService.sendMessage(chatId, message);
+          await this.telegramService.sendMessage(chatId, message, {});
           return;
         }
 
@@ -64,7 +63,7 @@ export class CallbackHandler {
               } catch (error) {
                 this.logger.error(`Error in add_category: ${error.message}`);
                 const errorMessage = language === 'uz' ? '❌ Kategoriya qo‘shishda xato yuz berdi.' : '❌ Ошибка при добавлении категории.';
-                await this.telegramService.sendMessage(chatId, errorMessage);
+                await this.telegramService.sendMessage(chatId, errorMessage, {});
               }
             });
           });
@@ -99,7 +98,7 @@ export class CallbackHandler {
               } catch (error) {
                 this.logger.error(`Error in edit_category: ${error.message}`);
                 const errorMessage = language === 'uz' ? '❌ Kategoriyani tahrirlashda xato yuz berdi.' : '❌ Ошибка при редактировании категории.';
-                await this.telegramService.sendMessage(chatId, errorMessage);
+                await this.telegramService.sendMessage(chatId, errorMessage, {});
               }
             });
           });
@@ -131,7 +130,7 @@ export class CallbackHandler {
                 const errorMessage = language === 'uz'
                   ? '❌ Kategoriya ID yoki ombor soni noto‘g‘ri.'
                   : '❌ Неверный ID категории или количество на складе.';
-                await this.telegramService.sendMessage(chatId, errorMessage);
+                await this.telegramService.sendMessage(chatId, errorMessage, {});
                 return;
               }
               const category = await this.categoryService.findOne(parsedCategoryId);
@@ -139,7 +138,7 @@ export class CallbackHandler {
                 const errorMessage = language === 'uz'
                   ? `❌ Kategoriya ID ${parsedCategoryId} topilmadi.`
                   : `❌ Категория с ID ${parsedCategoryId} не найдена.`;
-                await this.telegramService.sendMessage(chatId, errorMessage);
+                await this.telegramService.sendMessage(chatId, errorMessage, {});
                 return;
               }
               await this.productService.create({
@@ -158,7 +157,7 @@ export class CallbackHandler {
             } catch (error) {
               this.logger.error(`Error in add_product: ${error.message}`);
               const errorMessage = language === 'uz' ? '❌ Mahsulot qo‘shishda xato yuz berdi.' : '❌ Ошибка при добавлении товара.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data === 'view_products') {
@@ -189,7 +188,7 @@ export class CallbackHandler {
                 const errorMessage = language === 'uz'
                   ? '❌ Kategoriya ID yoki ombor soni noto‘g‘ri.'
                   : '❌ Неверный ID категории или количество на складе.';
-                await this.telegramService.sendMessage(chatId, errorMessage);
+                await this.telegramService.sendMessage(chatId, errorMessage, {});
                 return;
               }
               const category = await this.categoryService.findOne(parsedCategoryId);
@@ -197,7 +196,7 @@ export class CallbackHandler {
                 const errorMessage = language === 'uz'
                   ? `❌ Kategoriya ID ${parsedCategoryId} topilmadi.`
                   : `❌ Категория с ID ${parsedCategoryId} не найдена.`;
-                await this.telegramService.sendMessage(chatId, errorMessage);
+                await this.telegramService.sendMessage(chatId, errorMessage, {});
                 return;
               }
               await this.productService.update(productId, {
@@ -215,7 +214,7 @@ export class CallbackHandler {
             } catch (error) {
               this.logger.error(`Error in edit_product: ${error.message}`);
               const errorMessage = language === 'uz' ? '❌ Mahsulotni tahrirlashda xato yuz berdi.' : '❌ Ошибка при редактировании товара.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data === 'delete_product') {
@@ -262,7 +261,7 @@ export class CallbackHandler {
             } catch (error) {
               this.logger.error(`Error in edit_user: ${error.message}`);
               const errorMessage = language === 'uz' ? '❌ Foydalanuvchini tahrirlashda xato yuz berdi.' : '❌ Ошибка при редактировании пользователя.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data === 'delete_user') {
@@ -344,7 +343,7 @@ export class CallbackHandler {
             } catch (error) {
               this.logger.error(`Error in edit_delivery: ${error.message}`);
               const errorMessage = language === 'uz' ? '❌ Yetkazib berish statusini yangilashda xato yuz berdi.' : '❌ Ошибка при обновлении статуса доставки.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data === 'view_feedback') {
@@ -374,11 +373,11 @@ export class CallbackHandler {
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
           bot.once('message', async (msg) => {
             try {
-              const [code, discountPercent, expiryDate] = msg.text.split(';');
+              const [code, discountPercent, validTill] = msg.text.split(';');
               await this.promocodeService.create({
                 code: code.trim(),
                 discountPercent: parseFloat(discountPercent.trim()),
-                validTill: new Date(expiryDate.trim()),
+                validTill: new Date(validTill.trim()),
               });
               const successMessage = language === 'uz' ? '✅ Promo-kod qo‘shildi.' : '✅ Промокод добавлен.';
               await this.telegramService.sendMessage(chatId, successMessage, {
@@ -387,14 +386,12 @@ export class CallbackHandler {
             } catch (error) {
               this.logger.error(`Error in create_promocode: ${error.message}`);
               const errorMessage = language === 'uz' ? '❌ Promo-kod qo‘shishda xato yuz berdi.' : '❌ Ошибка при добавлении промокода.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data === 'view_stats') {
-          const totalUsers = await this.userService.findAll();
-          const totalOrders = await this.orderService.findAll();
-          const totalRevenue = totalOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-          await this.telegramService.sendMessage(chatId, formatStats({ totalUsers: totalUsers.length, totalOrders: totalOrders.length, totalRevenue }, language), {
+          const stats = await this.orderService.getStats();
+          await this.telegramService.sendMessage(chatId, formatStats(stats, language), {
             parse_mode: 'HTML',
             reply_markup: getAdminKeyboard(language),
           });
@@ -402,7 +399,13 @@ export class CallbackHandler {
       } catch (error) {
         this.logger.error(`Error in callback: ${error.message}`);
         const message = language === 'uz' ? '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.' : '❌ Произошла ошибка, попробуйте позже.';
-        await this.telegramService.sendMessage(chatId, message);
+        await this.telegramService.sendMessage(chatId, message, {});
+      } finally {
+        try {
+          await bot.answerCallbackQuery(query.id);
+        } catch (err) {
+          this.logger.error(`Error in answerCallbackQuery: ${err.message}`);
+        }
       }
     });
   }

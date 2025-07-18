@@ -5,7 +5,7 @@ import { UserService } from '../user/user.service';
 import { OrderService } from '../order/order.service';
 import { DeliveryService } from '../delivery/delivery.service';
 import { formatOrderList, formatUserList, formatProductList, formatCategoryList, formatFeedbackList } from './utils/helpers';
-import { getMainKeyboard, getAdminKeyboard } from './utils/keyboards';
+import { getMainKeyboard } from './utils/keyboards';
 
 @Injectable()
 export class TelegramService {
@@ -48,87 +48,51 @@ export class TelegramService {
   }
 
   private setupCommands() {
-    this.bot.onText(/\/admin/, async (msg) => {
+    this.bot.onText(/👤 Profilim/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
       try {
         const user = await this.userService.findByTelegramId(telegramId);
         const language = user.language || 'uz';
-        if (!user.isAdmin) {
-          const message = language === 'uz'
-            ? '❌ Bu amal faqat adminlar uchun mavjud.'
-            : '❌ Это действие доступно только администраторам.';
-          await this.bot.sendMessage(chatId, message);
-          return;
-        }
-        const message = language === 'uz'
-          ? '👨‍💻 Admin paneliga xush kelibsiz!'
-          : '👨‍💻 Добро пожаловать в панель администратора!';
-        await this.bot.sendMessage(chatId, message, {
-          reply_markup: getAdminKeyboard(language),
-        });
-      } catch (error) {
-        this.logger.error(`Error in admin command: ${error.message}`);
-        const message = '❌ Произошла ошибка при доступе к админ-панели. Пожалуйста, попробуйте позже.';
-        await this.bot.sendMessage(chatId, message);
-      }
-    });
-
-    this.bot.onText(/👤 (Profilim|Мой профиль)/, async (msg) => {
-      const chatId = msg.chat.id;
-      const telegramId = msg.from.id.toString();
-      try {
-        const user = await this.userService.findByTelegramId(telegramId);
-        const language = user.language || 'uz';
-        const message = language === 'uz'
-          ? `👤 Profilim\nIsm: ${user.fullName}\nTelefon: ${user.phone || 'Kiritilmagan'}\nTelegram ID: ${user.telegramId}`
-          : `👤 Мой профиль\nИмя: ${user.fullName}\nТелефон: ${user.phone || 'Не указан'}\nTelegram ID: ${user.telegramId}`;
+        const message = `${language === 'uz' ? '👤 Profilim' : '👤 Мой профиль'}\n${language === 'uz' ? 'Ism' : 'Имя'}: ${user.fullName}\n${language === 'uz' ? 'Telefon' : 'Телефон'}: ${user.phone || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}\nTelegram ID: ${user.telegramId}`;
         await this.bot.sendMessage(chatId, message, {
           reply_markup: getMainKeyboard(!user.phone, language),
         });
       } catch (error) {
         this.logger.error(`Error in profile: ${error.message}`);
-        await this.bot.sendMessage(chatId, '❌ Произошла ошибка при получении профиля. Пожалуйста, попробуйте позже.');
+        await this.bot.sendMessage(chatId, 'Profil ma‘lumotlarini olishda xato yuz berdi.\nОшибка при получении данных профиля.');
       }
     });
 
-    this.bot.onText(/🕘 (Buyurtma tarixi|История заказов)/, async (msg) => {
+    this.bot.onText(/🕘 Buyurtma tarixi/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
       try {
         const user = await this.userService.findByTelegramId(telegramId);
         const language = user.language || 'uz';
         const orders = await this.orderService.getUserOrders(telegramId);
-        const message = orders.length
-          ? formatOrderList(orders, language)
-          : language === 'uz'
-            ? 'Buyurtmalar mavjud emas.'
-            : 'Заказы отсутствуют.';
-        await this.bot.sendMessage(chatId, language === 'uz' ? `🕘 Buyurtma tarixi\n${message}` : `🕘 История заказов\n${message}`, {
-          reply_markup: getMainKeyboard(!user.phone, language),
-          parse_mode: 'HTML',
+        const message = orders.length ? formatOrderList(orders, language) : (language === 'uz' ? 'Buyurtmalar mavjud emas.' : 'Заказы отсутствуют.');
+        await this.bot.sendMessage(chatId, `${language === 'uz' ? '🕘 Buyurtma tarixi' : '🕘 История заказов'}\n${message}`, {
+          reply_markup: getMainKeyboard(false, language),
         });
       } catch (error) {
         this.logger.error(`Error in order history: ${error.message}`);
-        await this.bot.sendMessage(chatId, '❌ Произошла ошибка при получении истории заказов. Пожалуйста, попробуйте позже.');
+        await this.bot.sendMessage(chatId, 'Buyurtma tarixini olishda xato yuz berdi.\nОшибка при получении истории заказов.');
       }
     });
 
-    this.bot.onText(/ℹ️ (Biz haqimizda|О нас)/, async (msg) => {
+    this.bot.onText(/ℹ️ Biz haqimizda/, async (msg) => {
       const chatId = msg.chat.id;
-      const telegramId = msg.from.id.toString();
       try {
-        const user = await this.userService.findByTelegramId(telegramId);
+        const user = await this.userService.findByTelegramId(msg.from.id.toString());
         const language = user.language || 'uz';
-        const message = language === 'uz'
-          ? `ℹ️ Biz haqimizda\nBiz onlayn do‘konmiz, sifatli mahsulotlar va tezkor xizmat taklif qilamiz!\nAloqa: @${this.adminTelegramUser}\nVeb-sayt: https://yourshop.uz`
-          : `ℹ️ О нас\nМы онлайн-магазин, предлагаем качественные товары и быструю доставку!\nКонтакт: @${this.adminTelegramUser}\nВеб-сайт: https://yourshop.uz`;
+        const message = `${language === 'uz' ? 'ℹ️ Biz haqimizda' : 'ℹ️ О нас'}\n${language === 'uz' ? 'Biz onlayn do‘konmiz, sifatli mahsulotlar va tezkor xizmat taklif qilamiz!' : 'Мы онлайн-магазин, предлагаем качественные товары и быструю доставку!'}\n${language === 'uz' ? 'Aloqa' : 'Контакты'}: @${this.adminTelegramUser}\n${language === 'uz' ? 'Veb-sayt' : 'Веб-сайт'}: https://yourshop.uz`;
         await this.bot.sendMessage(chatId, message, {
-          reply_markup: getMainKeyboard(!user.phone, language),
+          reply_markup: getMainKeyboard(false, language),
         });
       } catch (error) {
         this.logger.error(`Error in about: ${error.message}`);
-        await this.bot.sendMessage(chatId, '❌ Произошла ошибка при получении информации. Пожалуйста, попробуйте позже.');
+        await this.bot.sendMessage(chatId, 'Biz haqimizda ma‘lumot olishda xato yuz berdi.\nОшибка при получении информации о нас.');
       }
     });
   }
@@ -151,7 +115,7 @@ export class TelegramService {
 
   async sendMessage(chatId: any, text: string, options?: TelegramBot.SendMessageOptions) {
     try {
-      await this.bot.sendMessage(chatId, text, options);
+      await this.bot.sendMessage(chatId, text, { ...options, parse_mode: options?.parse_mode || 'HTML' });
     } catch (error) {
       this.logger.error(`Error sending message to chatId ${chatId}: ${error.message}`);
       throw error;
@@ -160,7 +124,7 @@ export class TelegramService {
 
   async sendPhoto(chatId: number, photo: string, options?: TelegramBot.SendPhotoOptions) {
     try {
-      await this.bot.sendPhoto(chatId, photo, options);
+      await this.bot.sendPhoto(chatId, photo, { ...options, parse_mode: options?.parse_mode || 'HTML' });
     } catch (error) {
       this.logger.error(`Error sending photo to chatId ${chatId}: ${error.message}`);
       throw error;

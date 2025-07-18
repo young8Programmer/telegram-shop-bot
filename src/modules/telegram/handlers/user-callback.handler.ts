@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
+import { CategoryService } from '../../category/category.service';
+import { ProductService } from '../../product/product.service';
 import { CartService } from '../../cart/cart.service';
 import { OrderService } from '../../order/order.service';
 import { FeedbackService } from '../../feedback/feedback.service';
 import { PaymentService } from '../../payment/payment.service';
 import { UserService } from '../../user/user.service';
 import { DeliveryService } from '../../delivery/delivery.service';
-import { ProductService } from '../../product/product.service';
 import { TelegramService } from '../telegram.service';
-import { formatProductMessage } from '../utils/helpers';
+import { formatProductMessage, formatOrderList } from '../utils/helpers';
 import { PAYMENT_TYPE, ORDER_STATUS } from '../../../common/constants';
 import { getMainKeyboard } from '../utils/keyboards';
 
@@ -17,6 +18,7 @@ export class UserCallbackHandler {
   private logger = new Logger(UserCallbackHandler.name);
 
   constructor(
+    private categoryService: CategoryService,
     private productService: ProductService,
     private cartService: CartService,
     private orderService: OrderService,
@@ -33,7 +35,7 @@ export class UserCallbackHandler {
       const chatId = query.message.chat.id;
       const telegramId = query.from.id.toString();
       const data = query.data;
-      let language = 'uz'; // Standart til
+      let language = 'uz';
       try {
         this.logger.log(`Processing user callback: ${data} for telegramId: ${telegramId}`);
         const user = await this.userService.findByTelegramId(telegramId);
@@ -43,16 +45,29 @@ export class UserCallbackHandler {
           const selectedLanguage = data.split('_')[1];
           await this.userService.updateLanguage(telegramId, selectedLanguage);
           const message = selectedLanguage === 'uz'
-            ? '✅ O‘zbek tili tanlandi. Iltimos, telefon raqamingizni yuboring:'
-            : '✅ Выбран русский язык. Пожалуйста, отправьте ваш номер телефона:';
-          await this.telegramService.sendMessage(chatId, message, {
-            reply_markup: getMainKeyboard(true, selectedLanguage),
-          });
+            ? '✅ Til o‘zbekchaga o‘zgartirildi!'
+            : '✅ Язык изменен на русский!';
+          await this.telegramService.sendMessage(chatId, message, {});
+          if (!user.phone) {
+            const phoneMessage = selectedLanguage === 'uz'
+              ? 'Iltimos, telefon raqamingizni yuboring:'
+              : 'Пожалуйста, отправьте ваш номер телефона:';
+            await this.telegramService.sendMessage(chatId, phoneMessage, {
+              reply_markup: getMainKeyboard(true, selectedLanguage),
+            });
+          } else {
+            const welcomeMessage = selectedLanguage === 'uz'
+              ? `Qaytganingizdan xursandmiz, ${user.fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`
+              : `Рады вашему возвращению, ${user.fullName}! 🛒 Пользуйтесь нашим магазином!`;
+            await this.telegramService.sendMessage(chatId, welcomeMessage, {
+              reply_markup: getMainKeyboard(false, selectedLanguage),
+            });
+          }
         } else if (data.startsWith('category_')) {
           const categoryId = parseInt(data.split('_')[1]);
           const products = await this.productService.findByCategory(categoryId);
           const keyboard: TelegramBot.InlineKeyboardButton[][] = products.map((prod) => [
-            { text: `${prod.name} - ${prod.price} ${language === 'uz' ? 'so‘m' : 'сум'}`, callback_data: `product_${prod.id}` },
+            { text: `${prod.name} - ${prod.price} so‘m`, callback_data: `product_${prod.id}` },
           ]);
           const message = language === 'uz' ? '📦 Mahsulotlar:' : '📦 Товары:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { inline_keyboard: keyboard } });
@@ -72,7 +87,7 @@ export class UserCallbackHandler {
           const productId = parseInt(data.split('_')[1]);
           await this.cartService.addToCart({ telegramId, productId, quantity: 1 });
           const message = language === 'uz' ? '✅ Mahsulot savatchaga qo‘shildi.' : '✅ Товар добавлен в корзину.';
-          await this.telegramService.sendMessage(chatId, message);
+          await this.telegramService.sendMessage(chatId, message, {});
         } else if (data === 'place_order') {
           const order = await this.orderService.createOrder(telegramId);
           const message = language === 'uz'
@@ -87,12 +102,10 @@ export class UserCallbackHandler {
           });
           bot.once('location', async (msg) => {
             try {
-              const addressMessage = language === 'uz'
+              const detailsMessage = language === 'uz'
                 ? '🏠 Iltimos, xonadon raqami, qavat yoki qo‘shimcha ma’lumotlarni kiriting (masalan: 12-xonadon, 3-qavat):'
                 : '🏠 Пожалуйста, укажите номер квартиры, этаж или дополнительные сведения (например: квартира 12, 3 этаж):';
-              await this.telegramService.sendMessage(chatId, addressMessage, {
-                reply_markup: { force_reply: true },
-              });
+              await this.telegramService.sendMessage(chatId, detailsMessage, { reply_markup: { force_reply: true } });
               bot.once('message', async (msgDetails) => {
                 try {
                   const delivery = await this.deliveryService.create({
@@ -115,7 +128,7 @@ export class UserCallbackHandler {
                       `  📋 ID: ${order.id}\n` +
                       `  👤 Пользователь: ${order.user?.fullName || 'Не указано'}\n` +
                       `  📦 Товары: ${items || 'N/A'}\n` +
-                      `  💸 Итого: ${order.totalAmount} сум\n` +
+                      `  💸 Итого: ${order.totalAmount} so‘m\n` +
                       `  📍 Адрес: (${delivery.latitude}, ${delivery.longitude})\n` +
                       `  🏠 Дополнительно: ${delivery.addressDetails || 'N/A'}\n` +
                       `━━━━━━━━━━━━━━━`;
@@ -133,7 +146,7 @@ export class UserCallbackHandler {
                   const errorMessage = language === 'uz'
                     ? '❌ Yetkazib berish ma’lumotlarini saqlashda xato yuz berdi.'
                     : '❌ Ошибка при сохранении данных доставки.';
-                  await this.telegramService.sendMessage(chatId, errorMessage);
+                  await this.telegramService.sendMessage(chatId, errorMessage, {});
                 }
               });
             } catch (error) {
@@ -141,7 +154,7 @@ export class UserCallbackHandler {
               const errorMessage = language === 'uz'
                 ? '❌ Yetkazib berish manzilini saqlashda xato yuz berdi.'
                 : '❌ Ошибка при сохранении адреса доставки.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data.startsWith('confirm_payment_')) {
@@ -153,24 +166,24 @@ export class UserCallbackHandler {
 
           if (![PAYMENT_TYPE.CLICK, PAYMENT_TYPE.PAYME].includes(paymentType)) {
             this.logger.error(`Invalid payment type: ${paymentType}`);
-            const message = language === 'uz' ? '❌ Noto‘g‘ri to‘lov turi.' : '❌ Неверный тип оплаты.';
-            await this.telegramService.sendMessage(chatId, message);
+            const errorMessage = language === 'uz' ? '❌ Noto‘g‘ri to‘lov turi.' : '❌ Неверный тип оплаты.';
+            await this.telegramService.sendMessage(chatId, errorMessage, {});
             return;
           }
 
           const order = await this.orderService.findOne(orderId);
           if (!order) {
             this.logger.error(`Order not found for ID: ${orderId}`);
-            const message = language === 'uz' ? '❌ Buyurtma topilmadi.' : '❌ Заказ не найден.';
-            await this.telegramService.sendMessage(chatId, message);
+            const errorMessage = language === 'uz' ? '❌ Buyurtma topilmadi.' : '❌ Заказ не найден.';
+            await this.telegramService.sendMessage(chatId, errorMessage, {});
             return;
           }
 
           const delivery = await this.deliveryService.findOneByOrderId(order.id);
           if (!delivery) {
             this.logger.error(`Delivery not found for order ID: ${orderId}`);
-            const message = language === 'uz' ? '❌ Yetkazib berish ma’lumotlari topilmadi.' : '❌ Данные доставки не найдены.';
-            await this.telegramService.sendMessage(chatId, message);
+            const errorMessage = language === 'uz' ? '❌ Yetkazib berish ma’lumotlari topilmadi.' : '❌ Данные доставки не найдены.';
+            await this.telegramService.sendMessage(chatId, errorMessage, {});
             return;
           }
 
@@ -184,7 +197,7 @@ export class UserCallbackHandler {
               `  👤 Foydalanuvchi: ${order.user?.fullName || 'Kiritilmagan'}\n` +
               `  📦 Mahsulotlar: ${items || 'N/A'}\n` +
               `  💸 Jami: ${order.totalAmount} so‘m\n` +
-              `  📊 Status: ${ORDER_STATUS.PAID}\n` +
+              `  📊 Status: ${order.status}\n` +
               `  💵 To‘lov turi: ${paymentType}\n` +
               `  📍 Manzil: (${delivery.latitude}, ${delivery.longitude})\n` +
               `  🏠 Qo‘shimcha: ${delivery.addressDetails || 'N/A'}\n` +
@@ -196,14 +209,14 @@ export class UserCallbackHandler {
               `  📋 ID: ${order.id}\n` +
               `  👤 Пользователь: ${order.user?.fullName || 'Не указано'}\n` +
               `  📦 Товары: ${items || 'N/A'}\n` +
-              `  💸 Итого: ${order.totalAmount} сум\n` +
-              `  📊 Статус: ${ORDER_STATUS.PAID}\n` +
+              `  💸 Итого: ${order.totalAmount} so‘m\n` +
+              `  📊 Статус: ${order.status}\n` +
               `  💵 Тип оплаты: ${paymentType}\n` +
               `  📍 Адрес: (${delivery.latitude}, ${delivery.longitude})\n` +
               `  🏠 Дополнительно: ${delivery.addressDetails || 'N/A'}\n` +
               `  🚚 Курьер: ${delivery.courierName || 'N/A'}\n` +
               `  📞 Телефон: ${delivery.courierPhone || 'N/A'}\n` +
-              `  📅 Ожидаемая дата доставки: ${delivery.deliveryDate?.toLocaleString('ru-RU') || 'N/A'}\n` +
+              `  📅 Ориентировочная дата доставки: ${delivery.deliveryDate?.toLocaleString('ru-RU') || 'N/A'}\n` +
               `━━━━━━━━━━━━━━━`;
 
           await this.telegramService.sendMessage(chatId, message, { parse_mode: 'HTML' });
@@ -239,22 +252,42 @@ export class UserCallbackHandler {
                 comment: msg.text,
               });
               const successMessage = language === 'uz' ? '✅ Feedback qabul qilindi!' : '✅ Отзыв принят!';
-              await this.telegramService.sendMessage(chatId, successMessage);
+              await this.telegramService.sendMessage(chatId, successMessage, {});
             } catch (error) {
               this.logger.error(`Error in feedback: ${error.message}`);
               const errorMessage = language === 'uz' ? '❌ Feedback qoldirishda xato yuz berdi.' : '❌ Ошибка при отправке отзыва.';
-              await this.telegramService.sendMessage(chatId, errorMessage);
+              await this.telegramService.sendMessage(chatId, errorMessage, {});
             }
           });
         } else if (data === 'clear_cart') {
           await this.cartService.clearCart(telegramId);
           const message = language === 'uz' ? '🗑 Savatcha tozalandi.' : '🗑 Корзина очищена.';
-          await this.telegramService.sendMessage(chatId, message);
+          await this.telegramService.sendMessage(chatId, message, {});
+        } else if (data.startsWith('view_orders_')) {
+          const page = parseInt(data.split('_')[2]) || 1;
+          const orders = await this.orderService.getUserOrders(telegramId, page, 10);
+          const keyboard: TelegramBot.InlineKeyboardButton[][] = [];
+          if (orders.length === 10) {
+            keyboard.push([{ text: language === 'uz' ? '➡️ Keyingi sahifa' : '➡️ Следующая страница', callback_data: `view_orders_${page + 1}` }]);
+          }
+          if (page > 1) {
+            keyboard.push([{ text: language === 'uz' ? '⬅️ Oldingi sahifa' : '⬅️ Предыдущая страница', callback_data: `view_orders_${page - 1}` }]);
+          }
+          await this.telegramService.sendMessage(chatId, formatOrderList(orders, language), {
+            reply_markup: { inline_keyboard: keyboard },
+            parse_mode: 'HTML',
+          });
         }
       } catch (error) {
         this.logger.error(`Error in user callback: ${error.message}`);
         const message = language === 'uz' ? '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.' : '❌ Произошла ошибка, попробуйте позже.';
-        await this.telegramService.sendMessage(chatId, message);
+        await this.telegramService.sendMessage(chatId, message, {});
+      } finally {
+        try {
+          await bot.answerCallbackQuery(query.id);
+        } catch (err) {
+          this.logger.error(`Error in answerCallbackQuery: ${err.message}`);
+        }
       }
     });
   }

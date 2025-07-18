@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
-import { ConfigService } from '@nestjs/config';
 import { UserService } from '../../user/user.service';
 import { TelegramService } from '../telegram.service';
 import { getAdminKeyboard } from '../utils/keyboards';
@@ -10,46 +9,35 @@ export class AdminHandler {
   private logger = new Logger(AdminHandler.name);
 
   constructor(
-    private telegramService: TelegramService,
-    private configService: ConfigService,
     private userService: UserService,
+    private telegramService: TelegramService,
   ) {}
 
   handle() {
     const bot = this.telegramService.getBotInstance();
-    const adminTelegramId = '5661241603';
-
     bot.onText(/\/admin/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
-
       try {
         const user = await this.userService.findByTelegramId(telegramId);
         const language = user.language || 'uz';
-
-        if (telegramId !== adminTelegramId) {
+        if (!user.isAdmin) {
           const message = language === 'uz'
-            ? '❌ Sizda admin huquqlari yo‘q.'
-            : '❌ У вас нет прав администратора.';
-          await this.telegramService.sendMessage(chatId, message);
+            ? '❌ Bu amal faqat adminlar uchun mavjud.'
+            : '❌ Это действие доступно только администраторам.';
+          await this.telegramService.sendMessage(chatId, message, {});
           return;
         }
-
-        this.logger.log(`Processing admin panel for telegramId: ${telegramId}`);
         const message = language === 'uz'
-          ? '👨‍💼 Admin paneli:'
-          : '👨‍💼 Панель администратора:';
+          ? '🛠 Admin paneliga xush kelibsiz!'
+          : '🛠 Добро пожаловать в админ-панель!';
         await this.telegramService.sendMessage(chatId, message, {
           reply_markup: getAdminKeyboard(language),
         });
       } catch (error) {
-        this.logger.error(`Error in admin panel: ${error.message}`);
-        const user = await this.userService.findByTelegramId(telegramId);
-        const language = user.language || 'uz';
-        const message = language === 'uz'
-          ? 'Admin panelini ochishda xato yuz berdi.'
-          : 'Ошибка при открытии панели администратора.';
-        await this.telegramService.sendMessage(chatId, message);
+        this.logger.error(`Error in admin: ${error.message}`);
+        const message = '❌ Admin paneliga kirishda xato yuz berdi.\n❌ Ошибка при входе в админ-панель.';
+        await this.telegramService.sendMessage(chatId, message, {});
       }
     });
   }

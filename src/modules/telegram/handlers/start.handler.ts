@@ -25,12 +25,11 @@ export class StartHandler {
       const startTime = Date.now();
 
       try {
-        let user = await this.userService.findByTelegramId(telegramId);
-        if (!user) {
-          user = await this.userService.registerUser({ telegramId, fullName });
-        }
+        // Foydalanuvchini ro‘yxatdan o‘tkazish yoki mavjud foydalanuvchini olish
+        let user = await this.userService.registerUser({ telegramId, fullName });
         const duration = Date.now() - startTime;
 
+        // Foydalanuvchi til tanlamagan bo‘lsa
         if (!user.language) {
           this.logger.log(`User found but language is missing in ${duration}ms`);
           await this.telegramService.sendMessage(

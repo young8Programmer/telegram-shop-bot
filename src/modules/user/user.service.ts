@@ -14,16 +14,19 @@ export class UserService {
 
   async registerUser(dto: CreateUserDto): Promise<User> {
     try {
-      const user = await this.userRepository.findOneBy({ telegramId: dto.telegramId });
-      if (user) return user;
-      return await this.userRepository.save({
-        telegramId: dto.telegramId,
-        fullName: dto.fullName,
-        language: 'uz', // Standart til o‘zbek
-        createdAt: new Date(),
-      });
+      let user = await this.userRepository.findOneBy({ telegramId: dto.telegramId });
+      if (!user) {
+        user = this.userRepository.create({
+          telegramId: dto.telegramId,
+          fullName: dto.fullName,
+          language: 'uz', // Standart til o‘zbek
+          createdAt: new Date(),
+        });
+        user = await this.userRepository.save(user);
+      }
+      return user;
     } catch (error) {
-      throw new Error('Foydalanuvchi ro‘yxatdan o‘tkazishda xato yuz berdi');
+      throw new Error(`Foydalanuvchi ro‘yxatdan o‘tkazishda xato: ${error.message}`);
     }
   }
 

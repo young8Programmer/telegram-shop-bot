@@ -48,55 +48,57 @@ export class TelegramService {
   }
 
   private setupCommands() {
-    this.bot.onText(/👤 Profilim/, async (msg) => {
-      const chatId = msg.chat.id;
-      const telegramId = msg.from.id.toString();
-      try {
-        const user = await this.userService.findByTelegramId(telegramId);
-        const language = user.language || 'uz';
-        const message = `${language === 'uz' ? '👤 Profilim' : '👤 Мой профиль'}\n${language === 'uz' ? 'Ism' : 'Имя'}: ${user.fullName}\n${language === 'uz' ? 'Telefon' : 'Телефон'}: ${user.phone || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}\nTelegram ID: ${user.telegramId}`;
-        await this.bot.sendMessage(chatId, message, {
-          reply_markup: getMainKeyboard(!user.phone, language),
-        });
-      } catch (error) {
-        this.logger.error(`Error in profile: ${error.message}`);
-        await this.bot.sendMessage(chatId, 'Profil ma‘lumotlarini olishda xato yuz berdi.\nОшибка при получении данных профиля.');
-      }
-    });
+  this.bot.onText(/👤 Profilim|👤 Мой профиль/, async (msg) => {
+    const chatId = msg.chat.id;
+    const telegramId = msg.from.id.toString();
+    try {
+      const user = await this.userService.findByTelegramId(telegramId);
+      const language = user.language || 'uz';
+      const message = `${language === 'uz' ? '👤 Profilim' : '👤 Мой профиль'}\n${language === 'uz' ? 'Ism' : 'Имя'}: ${user.fullName}\n${language === 'uz' ? 'Telefon' : 'Телефон'}: ${user.phone || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}\nTelegram ID: ${user.telegramId}`;
+      await this.bot.sendMessage(chatId, message, {
+        reply_markup: getMainKeyboard(!user.phone, language),
+      });
+    } catch (error) {
+      this.logger.error(`Error in profile: ${error.message}`);
+      const language = (await this.userService.findByTelegramId(telegramId))?.language || 'uz';
+      await this.bot.sendMessage(chatId, language === 'uz' ? 'Profil ma‘lumotlarini olishda xato yuz berdi.' : 'Ошибка при получении данных профиля.');
+    }
+  });
 
-    this.bot.onText(/🕘 Buyurtma tarixi/, async (msg) => {
-      const chatId = msg.chat.id;
-      const telegramId = msg.from.id.toString();
-      try {
-        const user = await this.userService.findByTelegramId(telegramId);
-        const language = user.language || 'uz';
-        const orders = await this.orderService.getUserOrders(telegramId);
-        const message = orders.length ? formatOrderList(orders, language) : (language === 'uz' ? 'Buyurtmalar mavjud emas.' : 'Заказы отсутствуют.');
-        await this.bot.sendMessage(chatId, `${language === 'uz' ? '🕘 Buyurtma tarixi' : '🕘 История заказов'}\n${message}`, {
-          reply_markup: getMainKeyboard(false, language),
-        });
-      } catch (error) {
-        this.logger.error(`Error in order history: ${error.message}`);
-        await this.bot.sendMessage(chatId, 'Buyurtma tarixini olishda xato yuz berdi.\nОшибка при получении истории заказов.');
-      }
-    });
+  this.bot.onText(/🕘 Buyurtma tarixi|🕘 История заказов/, async (msg) => {
+    const chatId = msg.chat.id;
+    const telegramId = msg.from.id.toString();
+    try {
+      const user = await this.userService.findByTelegramId(telegramId);
+      const language = user.language || 'uz';
+      const orders = await this.orderService.getUserOrders(telegramId);
+      const message = orders.length ? formatOrderList(orders, language) : (language === 'uz' ? 'Buyurtmalar mavjud emas.' : 'Заказы отсутствуют.');
+      await this.bot.sendMessage(chatId, `${language === 'uz' ? '🕘 Buyurtma tarixi' : '🕘 История заказов'}\n${message}`, {
+        reply_markup: getMainKeyboard(false, language),
+      });
+    } catch (error) {
+      this.logger.error(`Error in order history: ${error.message}`);
+      const language = (await this.userService.findByTelegramId(telegramId))?.language || 'uz';
+      await this.bot.sendMessage(chatId, language === 'uz' ? 'Buyurtma tarixini olishda xato yuz berdi.' : 'Ошибка при получении истории заказов.');
+    }
+  });
 
-    this.bot.onText(/ℹ️ Biz haqimizda/, async (msg) => {
-      const chatId = msg.chat.id;
-      try {
-        const user = await this.userService.findByTelegramId(msg.from.id.toString());
-        const language = user.language || 'uz';
-        const message = `${language === 'uz' ? 'ℹ️ Biz haqimizda' : 'ℹ️ О нас'}\n${language === 'uz' ? 'Biz onlayn do‘konmiz, sifatli mahsulotlar va tezkor xizmat taklif qilamiz!' : 'Мы онлайн-магазин, предлагаем качественные товары и быструю доставку!'}\n${language === 'uz' ? 'Aloqa' : 'Контакты'}: @${this.adminTelegramUser}\n${language === 'uz' ? 'Veb-sayt' : 'Веб-сайт'}: https://yourshop.uz`;
-        await this.bot.sendMessage(chatId, message, {
-          reply_markup: getMainKeyboard(false, language),
-        });
-      } catch (error) {
-        this.logger.error(`Error in about: ${error.message}`);
-        await this.bot.sendMessage(chatId, 'Biz haqimizda ma‘lumot olishda xato yuz berdi.\nОшибка при получении информации о нас.');
-      }
-    });
-  }
-
+  this.bot.onText(/ℹ️ Biz haqimizda|ℹ️ О нас/, async (msg) => {
+    const chatId = msg.chat.id;
+    try {
+      const user = await this.userService.findByTelegramId(msg.from.id.toString());
+      const language = user.language || 'uz';
+      const message = `${language === 'uz' ? 'ℹ️ Biz haqimizda' : 'ℹ️ О нас'}\n${language === 'uz' ? 'Biz onlayn do‘konmiz, sifatli mahsulotlar va tezkor xizmat taklif qilamiz!' : 'Мы онлайн-магазин, предлагаем качественные товары и быструю доставку!'}\n${language === 'uz' ? 'Aloqa' : 'Контакты'}: @${this.adminTelegramUser}\n${language === 'uz' ? 'Veb-sayt' : 'Веб-сайт'}: https://yourshop.uz`;
+      await this.bot.sendMessage(chatId, message, {
+        reply_markup: getMainKeyboard(false, language),
+      });
+    } catch (error) {
+      this.logger.error(`Error in about: ${error.message}`);
+      const language = (await this.userService.findByTelegramId(msg.from.id.toString()))?.language || 'uz';
+      await this.bot.sendMessage(chatId, language === 'uz' ? 'Biz haqimizda ma‘lumot olishda xato yuz berdi.' : 'Ошибка при получении информации о нас.');
+    }
+  });
+}
   getBotInstance(): TelegramBot {
     return this.bot;
   }

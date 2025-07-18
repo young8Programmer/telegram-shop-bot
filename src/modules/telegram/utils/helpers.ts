@@ -48,11 +48,11 @@ export function formatOrderList(orders: Order[], language: string = 'uz'): strin
   return orders
     .map((order) => {
       const items = order.orderItems?.map((item) => `${item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
-      const delivery = order.deliveries?.[0]
+      const delivery = order.deliveries && order.deliveries.length > 0
         ? [
             `${language === 'uz' ? '📍 <b>Manzil</b>' : '📍 <b>Адрес</b>'}: (${order.deliveries[0].latitude}, ${order.deliveries[0].longitude})`,
             `${language === 'uz' ? '🏠 <b>Qo‘shimcha</b>' : '🏠 <b>Дополнительно</b>'}: ${order.deliveries[0].addressDetails || 'N/A'}`,
-            `${language === 'uz' ? '📊 <b>Yetkazib berish statusi</b>' : '📊 <b>Статус доставки</b>'}: ${order.deliveries[0].status}`,
+            `${language === 'uz' ? '📊 <b>Yetkazib berish statusi</b>' : '📊 <b>Статус доставки</b>'}: ${order.deliveries[0].status || 'N/A'}`,
             `${language === 'uz' ? '🚚 <b>Yetkazib beruvchi</b>' : '🚚 <b>Курьер</b>'}: ${order.deliveries[0].courierName || 'N/A'}`,
             `${language === 'uz' ? '📞 <b>Telefon</b>' : '📞 <b>Телефон</b>'}: ${order.deliveries[0].courierPhone || 'N/A'}`,
             `${language === 'uz' ? '📅 <b>Yetkazib berish sanasi</b>' : '📅 <b>Дата доставки</b>'}: ${order.deliveries[0].deliveryDate?.toLocaleString(language === 'uz' ? 'uz-UZ' : 'ru-RU') || 'N/A'}`,

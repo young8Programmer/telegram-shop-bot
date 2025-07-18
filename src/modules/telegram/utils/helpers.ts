@@ -7,9 +7,11 @@ import { Delivery } from "../../delivery/delivery.entity";
 import { ORDER_STATUS } from "../../../common/constants";
 
 export function formatProductMessage(product: Product, language: string = 'uz'): string {
+  const name = language === 'uz' ? product.name : (product.nameRu || '');
+  const description = language === 'uz' ? product.description : (product.descriptionRu || '');
   return [
-    `${language === 'uz' ? product.name : product.nameRu || product.name}`,
-    `${language === 'uz' ? product.description : product.descriptionRu || product.description}`,
+    `<b>${name || (language === 'uz' ? 'Nomi kiritilmagan' : 'Название не указано')}</b>`,
+    `${description || (language === 'uz' ? 'Tavsif yo‘q' : 'Описание отсутствует')}`,
     `💸 ${language === 'uz' ? 'Narxi' : 'Цена'}: ${product.price} so‘m`,
     `📦 ${language === 'uz' ? 'Omborda' : 'На складе'}: ${product.stock} ${language === 'uz' ? 'dona' : 'шт.'}`,
   ].join('\n');
@@ -18,14 +20,22 @@ export function formatProductMessage(product: Product, language: string = 'uz'):
 export function formatCategoryList(categories: Category[], language: string = 'uz'): string {
   if (!categories.length) return language === 'uz' ? '❌ Kategoriyalar mavjud emas.' : '❌ Категории отсутствуют.';
   return categories
-    .map((cat) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${cat.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${language === 'uz' ? cat.name : cat.nameRu || cat.name}, <b>${language === 'uz' ? 'Tavsif' : 'Описание'}</b>: ${language === 'uz' ? cat.description : cat.descriptionRu || cat.description}`)
+    .map((cat) => {
+      const name = language === 'uz' ? cat.name : (cat.nameRu || '');
+      const description = language === 'uz' ? cat.description : (cat.descriptionRu || '');
+      return `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${cat.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${name || (language === 'uz' ? 'Nomi kiritilmagan' : 'Название не указано')}, <b>${language === 'uz' ? 'Tavsif' : 'Описание'}</b>: ${description || (language === 'uz' ? 'Tavsif yo‘q' : 'Описание отсутствует')}`;
+    })
     .join('\n');
 }
 
 export function formatProductList(products: Product[], language: string = 'uz'): string {
   if (!products.length) return language === 'uz' ? '❌ Mahsulotlar mavjud emas.' : '❌ Товары отсутствуют.';
   return products
-    .map((prod) => `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${prod.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${language === 'uz' ? prod.name : prod.nameRu || prod.name}, 💸 <b>${language === 'uz' ? 'Narxi' : 'Цена'}</b>: ${prod.price} so‘m, 📌 <b>${language === 'uz' ? 'Kategoriya' : 'Категория'}</b>: ${language === 'uz' ? prod.category?.name : prod.category?.nameRu || prod.category?.name || 'N/A'}, 📦 <b>${language === 'uz' ? 'Omborda' : 'На складе'}</b>: ${prod.stock}`)
+    .map((prod) => {
+      const name = language === 'uz' ? prod.name : (prod.nameRu || '');
+      const categoryName = language === 'uz' ? (prod.category?.name || 'N/A') : (prod.category?.nameRu || prod.category?.name || 'N/A');
+      return `${language === 'uz' ? '📋 <b>ID</b>' : '📋 <b>ID</b>'}: ${prod.id}, <b>${language === 'uz' ? 'Nomi' : 'Название'}</b>: ${name || (language === 'uz' ? 'Nomi kiritilmagan' : 'Название не указано')}, 💸 <b>${language === 'uz' ? 'Narxi' : 'Цена'}</b>: ${prod.price} so‘m, 📌 <b>${language === 'uz' ? 'Kategoriya' : 'Категория'}</b>: ${categoryName}, 📦 <b>${language === 'uz' ? 'Omborda' : 'На складе'}</b>: ${prod.stock}`;
+    })
     .join('\n');
 }
 

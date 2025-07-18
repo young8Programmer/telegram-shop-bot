@@ -37,14 +37,16 @@ export class CallbackHandler {
         this.logger.log(`Processing callback: ${data} for telegramId: ${telegramId}`);
         const user = await this.userService.findByTelegramId(telegramId);
         language = user.language || 'uz';
-
+        if (data.startsWith('add_') || data.startsWith('edit_') || data.startsWith('delete_') || data.startsWith('view_') || data.startsWith('stats_')) {
         if (!user.isAdmin) {
-          const message = language === 'uz'
-            ? '❌ Bu amal faqat adminlar uchun mavjud.'
-            : '❌ Это действие доступно только администраторам.';
-          await this.telegramService.sendMessage(chatId, message, {});
-          return;
-        }
+        const message = language === 'uz'
+         ? '❌ Bu amal faqat adminlar uchun mavjud.'
+        : '❌ Это действие доступно только администраторам.';
+       await this.telegramService.sendMessage(chatId, message, {});
+       return;
+  }
+}
+
 
         if (data === 'add_category') {
           const message = language === 'uz' ? '📋 Kategoriya nomini kiriting:' : '📋 Введите название категории:';

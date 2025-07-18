@@ -25,8 +25,10 @@ export class StartHandler {
       const startTime = Date.now();
 
       try {
-        await this.userService.registerUser({ telegramId, fullName });
-        const user = await this.userService.findByTelegramId(telegramId);
+        let user = await this.userService.findByTelegramId(telegramId);
+        if (!user) {
+          user = await this.userService.registerUser({ telegramId, fullName });
+        }
         const duration = Date.now() - startTime;
 
         if (!user.language) {
@@ -42,6 +44,7 @@ export class StartHandler {
                     { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
                   ],
                 ],
+                one_time_keyboard: true,
               },
             },
           );

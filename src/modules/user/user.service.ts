@@ -62,6 +62,9 @@ export class UserService {
   }
 
   async updateLanguage(telegramId: string, language: string): Promise<User> {
+    if (!['uz', 'ru'].includes(language)) {
+      throw new Error('Noto‘g‘ri til tanlandi. Faqat "uz" yoki "ru" ruxsat etiladi.');
+    }
     const user = await this.findByTelegramId(telegramId);
     user.language = language;
     return this.userRepository.save(user);

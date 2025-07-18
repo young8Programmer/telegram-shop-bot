@@ -35,34 +35,58 @@ export class UserCallbackHandler {
       const chatId = query.message.chat.id;
       const telegramId = query.from.id.toString();
       const data = query.data;
-      let language = 'uz';
       try {
         this.logger.log(`Processing user callback: ${data} for telegramId: ${telegramId}`);
-        const user = await this.userService.findByTelegramId(telegramId);
-        language = user.language || 'uz';
+        let user = await this.userService.findByTelegramId(telegramId);
+        let language = user.language || 'uz';
 
         if (data.startsWith('lang_')) {
           const selectedLanguage = data.split('_')[1];
           await this.userService.updateLanguage(telegramId, selectedLanguage);
-          const message = selectedLanguage === 'uz'
+          user = await this.userService.findByTelegramId(telegramId); // Yangilangan foydalanuvchi ma’lumotlarini olish
+          language = selectedLanguage;
+          const message = language === 'uz'
             ? '✅ Til o‘zbekchaga o‘zgartirildi!'
             : '✅ Язык изменен на русский!';
-          await this.telegramService.sendMessage(chatId, message, {});
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: {
+              inline_keyboard: [], // Til tanlanganidan keyin menyuni yopish
+            },
+          });
           if (!user.phone) {
-            const phoneMessage = selectedLanguage === 'uz'
+            const phoneMessage = language === 'uz'
               ? 'Iltimos, telefon raqamingizni yuboring:'
               : 'Пожалуйста, отправьте ваш номер телефона:';
             await this.telegramService.sendMessage(chatId, phoneMessage, {
-              reply_markup: getMainKeyboard(true, selectedLanguage),
+              reply_markup: getMainKeyboard(true, language),
             });
           } else {
-            const welcomeMessage = selectedLanguage === 'uz'
+            const welcomeMessage = language === 'uz'
               ? `Qaytganingizdan xursandmiz, ${user.fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`
               : `Рады вашему возвращению, ${user.fullName}! 🛒 Пользуйтесь нашим магазином!`;
             await this.telegramService.sendMessage(chatId, welcomeMessage, {
-              reply_markup: getMainKeyboard(false, selectedLanguage),
+              reply_markup: getMainKeyboard(false, language),
             });
           }
+        } else if (!user.language) {
+          // Agar til tanlanmagan bo‘lsa, foydalanuvchidan til tanlashni so‘rash
+          await this.telegramService.sendMessage(
+            chatId,
+            language === 'uz'
+              ? 'Iltimos, avval tilni tanlang:'
+              : 'Пожалуйста, сначала выберите язык:',
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
+                    { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
+                  ],
+                ],
+                one_time_keyboard: true,
+              },
+            },
+          );
         } else if (data.startsWith('category_')) {
           const categoryId = parseInt(data.split('_')[1]);
           const products = await this.productService.findByCategory(categoryId);
@@ -280,6 +304,8 @@ export class UserCallbackHandler {
         }
       } catch (error) {
         this.logger.error(`Error in user callback: ${error.message}`);
+        const user = await this.userService.findByTelegramId(telegramId); // Foydalanuvchi ma'lumotlarini qayta olish
+        const language = user.language || 'uz'; // Tilni foydalanuvchidan olish
         const message = language === 'uz' ? '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.' : '❌ Произошла ошибка, попробуйте позже.';
         await this.telegramService.sendMessage(chatId, message, {});
       } finally {

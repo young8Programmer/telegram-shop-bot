@@ -20,7 +20,7 @@ export class User {
   @Column({ default: false })
   isAdmin: boolean;
 
-  @Column({ nullable: true, default: 'uz' })
+  @Column({ default: 'uz', nullable: false })
   language: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

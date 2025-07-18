@@ -115,14 +115,18 @@ export class TelegramService {
     }
   }
 
-  async sendMessage(chatId: any, text: string, options?: TelegramBot.SendMessageOptions) {
-    try {
-      await this.bot.sendMessage(chatId, text, { ...options, parse_mode: options?.parse_mode || 'HTML' });
-    } catch (error) {
-      this.logger.error(`Error sending message to chatId ${chatId}: ${error.message}`);
-      throw error;
-    }
+  async sendMessage(chatId: any, text: string, options: TelegramBot.SendMessageOptions = {}) {
+  try {
+    await this.bot.sendMessage(chatId, text, {
+      ...options,
+      parse_mode: options.parse_mode ?? 'HTML',
+    });
+  } catch (error) {
+    this.logger.error(`Error sending message to chatId ${chatId}: ${error.message}`);
+    throw error;
   }
+}
+
 
   async sendPhoto(chatId: number, photo: string, options?: TelegramBot.SendPhotoOptions) {
     try {

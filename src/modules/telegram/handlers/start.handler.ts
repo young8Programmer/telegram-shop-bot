@@ -25,11 +25,8 @@ export class StartHandler {
       const startTime = Date.now();
 
       try {
-        // Foydalanuvchini ro‘yxatdan o‘tkazish yoki mavjud foydalanuvchini olish
         let user = await this.userService.registerUser({ telegramId, fullName });
         const duration = Date.now() - startTime;
-
-        // Yangi foydalanuvchi yoki til tanlanmagan bo‘lsa, til tanlash menyusini ko‘rsatish
         if (!user.language) {
           this.logger.log(`User found but language is missing in ${duration}ms`);
           await this.telegramService.sendMessage(
@@ -48,7 +45,6 @@ export class StartHandler {
             },
           );
         } else {
-          // Til tanlangan bo‘lsa, foydalanuvchi ma’lumotlarini tekshirish
           if (!user.phone) {
             this.logger.log(`User found but phone is missing in ${duration}ms`);
             const message = user.language === 'uz'

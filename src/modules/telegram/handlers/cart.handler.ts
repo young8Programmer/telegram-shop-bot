@@ -13,7 +13,6 @@ export class CartHandler {
     private telegramService: TelegramService,
     private userService: UserService,
   ) {}
-
   handle() {
     const bot = this.telegramService.getBotInstance();
     bot.onText(/🛒 (Savatcha|Корзина)/, async (msg) => {

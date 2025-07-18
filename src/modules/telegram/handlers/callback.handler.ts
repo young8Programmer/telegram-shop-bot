@@ -9,7 +9,7 @@ import { PromocodeService } from '../../promocode/promocode.service';
 import { DeliveryService } from '../../delivery/delivery.service';
 import { TelegramService } from '../telegram.service';
 import { formatCategoryList, formatProductList, formatUserList, formatOrderList, formatFeedbackList, formatDeliveryList, formatStats } from '../utils/helpers';
-import { getAdminKeyboard, getMainKeyboard } from '../utils/keyboards';
+import { getAdminKeyboard } from '../utils/keyboards';
 
 @Injectable()
 export class CallbackHandler {
@@ -133,7 +133,7 @@ export class CallbackHandler {
             return;
           }
           const keyboard = categories.map((cat) => [
-            { text: language === 'uz' ? cat.name : cat.nameRu || 'N/A', callback_data: `edit_cat_${cat.id}` },
+            { text: language === 'uz' ? cat.name : cat.nameRu || cat.name, callback_data: `edit_cat_${cat.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan kategoriyani tanlang:' : '✏️ Выберите категорию для редактирования:';
           await this.telegramService.sendMessage(chatId, message, { 
@@ -217,7 +217,7 @@ export class CallbackHandler {
             return;
           }
           const keyboard = categories.map((cat) => [
-            { text: language === 'uz' ? cat.name : cat.nameRu || 'N/A', callback_data: `delete_cat_${cat.id}` },
+            { text: language === 'uz' ? cat.name : cat.nameRu || cat.name, callback_data: `delete_cat_${cat.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan kategoriyani tanlang:' : '🗑 Выберите категорию для удаления:';
           await this.telegramService.sendMessage(chatId, message, { 
@@ -239,6 +239,7 @@ export class CallbackHandler {
           const message = language === 'uz' ? '✅ Kategoriya o‘chirildi.' : '✅ Категория удалена.';
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: { inline_keyboard: getAdminKeyboard(language) },
+            parse_mode: 'HTML',
           });
         } else if (data === 'add_product') {
           const message = language === 'uz'
@@ -315,7 +316,7 @@ export class CallbackHandler {
             return;
           }
           const keyboard = products.map((prod) => [
-            { text: language === 'uz' ? prod.name : prod.nameRu || 'N/A', callback_data: `edit_prod_${prod.id}` },
+            { text: language === 'uz' ? prod.name : prod.nameRu || prod.name, callback_data: `edit_prod_${prod.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan mahsulotni tanlang:' : '✏️ Выберите товар для редактирования:';
           await this.telegramService.sendMessage(chatId, message, { 
@@ -398,7 +399,7 @@ export class CallbackHandler {
             return;
           }
           const keyboard = products.map((prod) => [
-            { text: language === 'uz' ? prod.name : prod.nameRu || 'N/A', callback_data: `delete_prod_${prod.id}` },
+            { text: language === 'uz' ? prod.name : prod.nameRu || prod.name, callback_data: `delete_prod_${prod.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan mahsulotni tanlang:' : '🗑 Выберите товар для удаления:';
           await this.telegramService.sendMessage(chatId, message, { 
@@ -420,6 +421,7 @@ export class CallbackHandler {
           const message = language === 'uz' ? '✅ Mahsulot o‘chirildi.' : '✅ Товар удален.';
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: { inline_keyboard: getAdminKeyboard(language) },
+            parse_mode: 'HTML',
           });
         } else if (data === 'view_users') {
           const users = await this.userService.findAll();
@@ -514,6 +516,7 @@ export class CallbackHandler {
           const message = language === 'uz' ? '✅ Foydalanuvchi o‘chirildi.' : '✅ Пользователь удален.';
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: { inline_keyboard: getAdminKeyboard(language) },
+            parse_mode: 'HTML',
           });
         } else if (data === 'view_orders') {
           const orders = await this.orderService.findAll(1, 10);
@@ -657,6 +660,7 @@ export class CallbackHandler {
           const message = language === 'uz' ? '✅ Feedback o‘chirildi.' : '✅ Отзыв удален.';
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: { inline_keyboard: getAdminKeyboard(language) },
+            parse_mode: 'HTML',
           });
         } else if (data === 'create_promocode') {
           const message = language === 'uz'

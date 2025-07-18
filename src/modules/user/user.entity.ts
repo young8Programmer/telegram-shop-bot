@@ -11,7 +11,7 @@ export class User {
   @Column({ unique: true, nullable: true })
   telegramId: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   fullName: string;
 
   @Column({ nullable: true })
@@ -19,6 +19,9 @@ export class User {
 
   @Column({ default: false })
   isAdmin: boolean;
+
+  @Column({ type: 'varchar', length: 2, default: 'uz' })
+  language: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

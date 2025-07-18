@@ -29,26 +29,44 @@ export class StartHandler {
         const user = await this.userService.findByTelegramId(telegramId);
         const duration = Date.now() - startTime;
 
-        if (!user.phone) {
+        if (!user.language) {
+          this.logger.log(`User found but language is missing in ${duration}ms`);
+          await this.telegramService.sendMessage(
+            chatId,
+            `🇺🇿 Iltimos, tilni tanlang:\n🇷🇺 Пожалуйста, выберите язык:`,
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: '🇺🇿 O‘zbek', callback_data: 'lang_uz' },
+                    { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
+                  ],
+                ],
+              },
+            },
+          );
+        } else if (!user.phone) {
           this.logger.log(`User found but phone is missing in ${duration}ms`);
-          await this.telegramService.sendMessage(
-            chatId,
-            `Xush kelibsiz, ${fullName}! Iltimos, telefon raqamingizni yuboring:`,
-            { reply_markup: getMainKeyboard(true) },
-          );
+          const message = user.language === 'uz'
+            ? `Xush kelibsiz, ${fullName}! Iltimos, telefon raqamingizni yuboring:`
+            : `Добро пожаловать, ${fullName}! Пожалуйста, отправьте ваш номер телефона:`;
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getMainKeyboard(true, user.language),
+          });
         } else {
-          this.logger.log(`Existing user with phone in ${duration}ms`);
-          await this.telegramService.sendMessage(
-            chatId,
-            `Qaytganingizdan xursandmiz, ${fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`,
-            { reply_markup: getMainKeyboard(false) },
-          );
+          this.logger.log(`Existing user with phone and language in ${duration}ms`);
+          const message = user.language === 'uz'
+            ? `Qaytganingizdan xursandmiz, ${fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`
+            : `Рады вашему возвращению, ${fullName}! 🛒 Пользуйтесь нашим магазином!`;
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getMainKeyboard(false, user.language),
+          });
         }
       } catch (error) {
         this.logger.error(`Error in /start: ${error.message}`);
         await this.telegramService.sendMessage(
           chatId,
-          'Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.',
+          '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.',
         );
       }
     });

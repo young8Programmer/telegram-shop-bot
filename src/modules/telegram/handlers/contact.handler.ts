@@ -20,35 +20,40 @@ export class ContactHandler {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
 
-      // Yangi: kontakt validatsiyasi
-      if (!msg.contact || msg.contact.user_id !== msg.from.id) {
-        this.logger.warn(`Noto‘g‘ri kontakt: ${JSON.stringify(msg.contact)}`);
-        await this.telegramService.sendMessage(
-          chatId,
-          'Faqat o‘zingizning telefon raqamingizni ulashingiz mumkin. Iltimos, "Telefon raqamni yuborish" tugmasini bosing.',
-          { reply_markup: getMainKeyboard(true) },
-        );
-        return;
-      }
-
-      const phone = msg.contact.phone_number;
-
       try {
-        this.logger.log(`Telefon qabul qilindi: ${phone} telegramId: ${telegramId}`);
+        const user = await this.userService.findByTelegramId(telegramId);
+        const language = user.language || 'uz';
 
+        if (!msg.contact || msg.contact.user_id !== msg.from.id) {
+          this.logger.warn(`Noto‘g‘ri kontakt: ${JSON.stringify(msg.contact)}`);
+          const message = language === 'uz'
+            ? 'Faqat o‘zingizning telefon raqamingizni ulashingiz mumkin. Iltimos, "Telefon raqamni yuborish" tugmasini bosing.'
+            : 'Вы можете поделиться только своим номером телефона. Пожалуйста, нажмите кнопку "Отправить номер телефона".';
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getMainKeyboard(true, language),
+          });
+          return;
+        }
+
+        const phone = msg.contact.phone_number;
+
+        this.logger.log(`Telefon qabul qilindi: ${phone} telegramId: ${telegramId}`);
         await this.userService.updatePhoneNumber(telegramId, phone);
 
-        await this.telegramService.sendMessage(
-          chatId,
-          `✅ Telefon raqamingiz saqlandi: ${phone}\nEndi do‘konimizdan bemalol foydalanishingiz mumkin!`,
-          { reply_markup: getMainKeyboard(false) },
-        );
+        const message = language === 'uz'
+          ? `✅ Telefon raqamingiz saqlandi: ${phone}\nEndi do‘konimizdan bemalol foydalanishingiz mumkin!`
+          : `✅ Ваш номер телефона сохранен: ${phone}\nТеперь вы можете свободно пользоваться нашим магазином!`;
+        await this.telegramService.sendMessage(chatId, message, {
+          reply_markup: getMainKeyboard(false, language),
+        });
       } catch (error) {
         this.logger.error(`Telefonni saqlashda xato: ${error.message}`);
-        await this.telegramService.sendMessage(
-          chatId,
-          '❌ Telefon raqamingizni saqlashda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.',
-        );
+        const user = await this.userService.findByTelegramId(telegramId);
+        const language = user.language || 'uz';
+        const message = language === 'uz'
+          ? '❌ Telefon raqamingizni saqlashda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.'
+          : '❌ Ошибка при сохранении номера телефона. Пожалуйста, попробуйте снова.';
+        await this.telegramService.sendMessage(chatId, message);
       }
     });
   }

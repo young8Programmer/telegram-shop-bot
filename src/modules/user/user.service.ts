@@ -19,6 +19,7 @@ export class UserService {
       return await this.userRepository.save({
         telegramId: dto.telegramId,
         fullName: dto.fullName,
+        language: 'uz', // Standart til: O‘zbek
         createdAt: new Date(),
       });
     } catch (error) {
@@ -57,6 +58,12 @@ export class UserService {
   async updatePhoneNumber(telegramId: string, phone: string): Promise<User> {
     const user = await this.findByTelegramId(telegramId);
     user.phone = phone;
+    return this.userRepository.save(user);
+  }
+
+  async updateLanguage(telegramId: string, language: string): Promise<User> {
+    const user = await this.findByTelegramId(telegramId);
+    user.language = language;
     return this.userRepository.save(user);
   }
 

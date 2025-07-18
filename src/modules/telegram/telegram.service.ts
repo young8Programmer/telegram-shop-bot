@@ -14,10 +14,10 @@ export class TelegramService {
   private readonly adminTelegramUser = 'Vali_003';
 
   constructor(
-  private configService: ConfigService,
-  private userService: UserService,
-  @Inject(forwardRef(() => OrderService)) private readonly orderService: OrderService,
-  private deliveryService: DeliveryService,
+    private configService: ConfigService,
+    private userService: UserService,
+    @Inject(forwardRef(() => OrderService)) private readonly orderService: OrderService,
+    private deliveryService: DeliveryService,
   ) {
     const token = '7942071036:AAFz_o_p2p2o-Gq-1C1YZMQSdODCHJiu2dY';
     if (!token) {
@@ -48,46 +48,61 @@ export class TelegramService {
   }
 
   private setupCommands() {
-    this.bot.onText(/👤 Profilim/, async (msg) => {
+    this.bot.onText(/👤 (Profilim|Мой профиль)/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
       try {
         const user = await this.userService.findByTelegramId(telegramId);
-        const message = `👤 Profilim\nIsm: ${user.fullName}\nTelefon: ${user.phone || 'Kiritilmagan'}\nTelegram ID: ${user.telegramId}`;
+        const language = user.language || 'uz';
+        const message = language === 'uz'
+          ? `👤 Profilim\nIsm: ${user.fullName}\nTelefon: ${user.phone || 'Kiritilmagan'}\nTelegram ID: ${user.telegramId}`
+          : `👤 Мой профиль\nИмя: ${user.fullName}\nТелефон: ${user.phone || 'Не указан'}\nTelegram ID: ${user.telegramId}`;
         await this.bot.sendMessage(chatId, message, {
-          reply_markup: getMainKeyboard(!user.phone),
+          reply_markup: getMainKeyboard(!user.phone, language),
         });
       } catch (error) {
         this.logger.error(`Error in profile: ${error.message}`);
-        await this.bot.sendMessage(chatId, 'Profil ma‘lumotlarini olishda xato yuz berdi.');
+        await this.bot.sendMessage(chatId, '❌ Произошла ошибка при получении профиля. Пожалуйста, попробуйте позже.');
       }
     });
 
-    this.bot.onText(/🕘 Buyurtma tarixi/, async (msg) => {
+    this.bot.onText(/🕘 (Buyurtma tarixi|История заказов)/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
       try {
+        const user = await this.userService.findByTelegramId(telegramId);
+        const language = user.language || 'uz';
         const orders = await this.orderService.getUserOrders(telegramId);
-        const message = orders.length ? formatOrderList(orders) : 'Buyurtmalar mavjud emas.';
-        await this.bot.sendMessage(chatId, `🕘 Buyurtma tarixi\n${message}`, {
-          reply_markup: getMainKeyboard(false),
+        const message = orders.length
+          ? formatOrderList(orders, language)
+          : language === 'uz'
+            ? 'Buyurtmalar mavjud emas.'
+            : 'Заказы отсутствуют.';
+        await this.bot.sendMessage(chatId, language === 'uz' ? `🕘 Buyurtma tarixi\n${message}` : `🕘 История заказов\n${message}`, {
+          reply_markup: getMainKeyboard(!user.phone, language),
+          parse_mode: 'HTML',
         });
       } catch (error) {
         this.logger.error(`Error in order history: ${error.message}`);
-        await this.bot.sendMessage(chatId, 'Buyurtma tarixini olishda xato yuz berdi.');
+        await this.bot.sendMessage(chatId, '❌ Произошла ошибка при получении истории заказов. Пожалуйста, попробуйте позже.');
       }
     });
 
-    this.bot.onText(/ℹ️ Biz haqimizda/, async (msg) => {
+    this.bot.onText(/ℹ️ (Biz haqimizda|О нас)/, async (msg) => {
       const chatId = msg.chat.id;
+      const telegramId = msg.from.id.toString();
       try {
-        const message = `ℹ️ Biz haqimizda\nBiz onlayn do‘konmiz, sifatli mahsulotlar va tezkor xizmat taklif qilamiz!\nAloqa: @${this.adminTelegramUser}\nVeb-sayt: https://yourshop.uz`;
+        const user = await this.userService.findByTelegramId(telegramId);
+        const language = user.language || 'uz';
+        const message = language === 'uz'
+          ? `ℹ️ Biz haqimizda\nBiz onlayn do‘konmiz, sifatli mahsulotlar va tezkor xizmat taklif qilamiz!\nAloqa: @${this.adminTelegramUser}\nVeb-sayt: https://yourshop.uz`
+          : `ℹ️ О нас\nМы онлайн-магазин, предлагаем качественные товары и быструю доставку!\nКонтакт: @${this.adminTelegramUser}\nВеб-сайт: https://yourshop.uz`;
         await this.bot.sendMessage(chatId, message, {
-          reply_markup: getMainKeyboard(false),
+          reply_markup: getMainKeyboard(!user.phone, language),
         });
       } catch (error) {
         this.logger.error(`Error in about: ${error.message}`);
-        await this.bot.sendMessage(chatId, 'Biz haqimizda ma‘lumot olishda xato yuz berdi.');
+        await this.bot.sendMessage(chatId, '❌ Произошла ошибка при получении информации. Пожалуйста, попробуйте позже.');
       }
     });
   }

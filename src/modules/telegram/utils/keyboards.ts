@@ -1,56 +1,56 @@
-import { TelegramBot } from 'node-telegram-bot-api';
-import { KeyboardOptions } from './interfaces';
+import * as TelegramBot from 'node-telegram-bot-api';
 
+export function getMainKeyboard(needPhone: boolean, language: string): TelegramBot.ReplyKeyboardMarkup {
+  const buttons = language === 'uz'
+    ? [
+        ['📁 Kategoriyalar', '🛒 Savatcha'],
+        ['👤 Profilim', '🕘 Buyurtma tarixi'],
+        ['ℹ️ Biz haqimizda', '🆘 Yordam'],
+      ]
+    : [
+        ['📁 Категории', '🛒 Корзина'],
+        ['👤 Мой профиль', '🕘 История заказов'],
+        ['ℹ️ О нас', '🆘 Помощь'],
+      ];
 
-export function getMainKeyboard(showContact: boolean): TelegramBot.SendMessageOptions['reply_markup'] {
-  const keyboard: TelegramBot.KeyboardButton[][] = [
-    [{ text: '📁 Kategoriyalar' }, { text: '🛒 Savatcha' }],
-    [{ text: '👤 Profilim' }, { text: '🕘 Buyurtma tarixi' }],
-    [{ text: 'ℹ️ Biz haqimizda' }, { text: '🆘 Yordam' }],
-  ];
-
-  if (showContact) {
-    keyboard.unshift([{ text: '📞 Telefon raqamni yuborish', request_contact: true }]);
+  if (needPhone) {
+    buttons.push([
+      language === 'uz' ? '📞 Telefon raqamni yuborish' : '📞 Отправить номер телефона',
+    ]);
   }
 
   return {
-    keyboard,
+    keyboard: buttons,
     resize_keyboard: true,
-    one_time_keyboard: false,
+    one_time_keyboard: needPhone,
   };
 }
 
+export function getAdminKeyboard(language: string): TelegramBot.ReplyKeyboardMarkup {
+  const buttons = language === 'uz'
+    ? [
+        ['📁 Kategoriyalarni boshqarish'],
+        ['📦 Mahsulotlarni boshqarish'],
+        ['👥 Foydalanuvchilar'],
+        ['🛍 Buyurtmalar'],
+        ['🚚 Yetkazib berish'],
+        ['⭐ Feedbacklar'],
+        ['🎟 Promo-kodlar'],
+        ['📊 Statistika'],
+      ]
+    : [
+        ['📁 Управление категориями'],
+        ['📦 Управление товарами'],
+        ['👥 Пользователи'],
+        ['🛍 Заказы'],
+        ['🚚 Доставка'],
+        ['⭐ Отзывы'],
+        ['🎟 Промокоды'],
+        ['📊 Статистика'],
+      ];
 
-export function getAdminKeyboard(): TelegramBot.SendMessageOptions['reply_markup'] {
   return {
-    inline_keyboard: [
-      [
-        { text: '📋 Kategoriyalarni ko‘rish', callback_data: 'view_categories' },
-        { text: '➕ Kategoriya qo‘shish', callback_data: 'add_category' },
-        { text: '✏️ Kategoriya tahrirlash', callback_data: 'edit_category' },
-        { text: '🗑️ Kategoriya o‘chirish', callback_data: 'delete_category' },
-      ],
-      [
-        { text: '📋 Mahsulotlarni ko‘rish', callback_data: 'view_products' },
-        { text: '➕ Mahsulot qo‘shish', callback_data: 'add_product' },
-        { text: '✏️ Mahsulot tahrirlash', callback_data: 'edit_product' },
-        { text: '🗑️ Mahsulot o‘chirish', callback_data: 'delete_product' },
-      ],
-      [
-        { text: '👥 Foydalanuvchilarni ko‘rish', callback_data: 'view_users' },
-        { text: '✏️ Foydalanuvchi tahrirlash', callback_data: 'edit_user' },
-        { text: '🗑️ Foydalanuvchi o‘chirish', callback_data: 'delete_user' },
-      ],
-      [
-        { text: '📦 Buyurtmalar', callback_data: 'view_orders' },
-        { text: '✏️ Buyurtma tahrirlash', callback_data: 'edit_order' },
-      ],
-      [
-        { text: '🗒️ Feedbacklar', callback_data: 'view_feedback' },
-        { text: '🗑️ Feedback o‘chirish', callback_data: 'delete_feedback' },
-      ],
-      [{ text: '🎟️ Promo-kod yaratish', callback_data: 'create_promocode' }],
-      [{ text: '📊 Statistika', callback_data: 'view_stats' }],
-    ],
+    keyboard: buttons,
+    resize_keyboard: true,
   };
 }

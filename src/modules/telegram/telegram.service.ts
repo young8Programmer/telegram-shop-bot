@@ -48,6 +48,32 @@ export class TelegramService {
   }
 
   private setupCommands() {
+    this.bot.onText(/\/admin/, async (msg) => {
+      const chatId = msg.chat.id;
+      const telegramId = msg.from.id.toString();
+      try {
+        const user = await this.userService.findByTelegramId(telegramId);
+        const language = user.language || 'uz';
+        if (!user.isAdmin) {
+          const message = language === 'uz'
+            ? '❌ Bu amal faqat adminlar uchun mavjud.'
+            : '❌ Это действие доступно только администраторам.';
+          await this.bot.sendMessage(chatId, message);
+          return;
+        }
+        const message = language === 'uz'
+          ? '👨‍💻 Admin paneliga xush kelibsiz!'
+          : '👨‍💻 Добро пожаловать в панель администратора!';
+        await this.bot.sendMessage(chatId, message, {
+          reply_markup: getAdminKeyboard(language),
+        });
+      } catch (error) {
+        this.logger.error(`Error in admin command: ${error.message}`);
+        const message = '❌ Произошла ошибка при доступе к админ-панели. Пожалуйста, попробуйте позже.';
+        await this.bot.sendMessage(chatId, message);
+      }
+    });
+
     this.bot.onText(/👤 (Profilim|Мой профиль)/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();

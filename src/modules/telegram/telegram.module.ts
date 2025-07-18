@@ -18,6 +18,7 @@ import { HelpHandler } from './handlers/help.handler';
 import { AdminHandler } from './handlers/admin.handler';
 import { CallbackHandler } from './handlers/callback.handler';
 import { ConfigModule } from '@nestjs/config';
+import { UserCallbackHandler } from './handlers/user-callback.handler';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ConfigModule } from '@nestjs/config';
     HelpHandler,
     AdminHandler,
     CallbackHandler,
+    UserCallbackHandler
   ],
   exports: [TelegramService],
 })
@@ -55,6 +57,7 @@ export class TelegramModule implements OnModuleInit {
     private helpHandler: HelpHandler,
     private adminHandler: AdminHandler,
     private callbackHandler: CallbackHandler,
+    private userCallbackHandler: UserCallbackHandler,
   ) {}
 
   onModuleInit() {
@@ -65,5 +68,7 @@ export class TelegramModule implements OnModuleInit {
     this.helpHandler.handle();
     this.adminHandler.handle();
     this.callbackHandler.handle();
+    this.userCallbackHandler.handle()
+
   }
 }

@@ -33,21 +33,31 @@ export class CallbackHandler {
       const telegramId = query.from.id.toString();
       const data = query.data;
       let language = 'uz';
+
       try {
-        this.logger.log(`Processing callback: ${data} for telegramId: ${telegramId}`);
+        this.logger.log(`Received callback: ${data}, telegramId: ${telegramId}`);
         const user = await this.userService.findByTelegramId(telegramId);
-        language = user.language || 'uz';
-        if (data.startsWith('add_') || data.startsWith('edit_') || data.startsWith('delete_') || data.startsWith('view_') || data.startsWith('stats_')) {
-        if (!user.isAdmin) {
-        const message = language === 'uz'
-         ? '❌ Bu amal faqat adminlar uchun mavjud.'
-        : '❌ Это действие доступно только администраторам.';
-       await this.telegramService.sendMessage(chatId, message, {});
-       return;
-  }
-}
+        language = user?.language || 'uz'; // Agar user topilmasa, 'uz' ishlatiladi
+        this.logger.log(`User language set to: ${language}`);
 
+        // Admin faqat huquqlari bilan cheklangan operatsiyalar
+        if (
+          data.startsWith('add_') ||
+          data.startsWith('edit_') ||
+          data.startsWith('delete_') ||
+          data.startsWith('view_') ||
+          data.startsWith('stats_')
+        ) {
+          if (!user?.isAdmin) {
+            const message = language === 'uz'
+              ? '❌ Bu amal faqat adminlar uchun mavjud.'
+              : '❌ Это действие доступно только администраторам.';
+            await this.telegramService.sendMessage(chatId, message, {});
+            return;
+          }
+        }
 
+        // Asosiy callback handlerlari
         if (data === 'add_category') {
           const message = language === 'uz' ? '📋 Kategoriya nomini kiriting:' : '📋 Введите название категории:';
           await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
@@ -77,7 +87,7 @@ export class CallbackHandler {
           });
         } else if (data === 'edit_category') {
           const categories = await this.categoryService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = categories.map((cat) => [
+          const keyboard = categories.map((cat) => [
             { text: cat.name, callback_data: `edit_cat_${cat.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan kategoriyani tanlang:' : '✏️ Выберите категорию для редактирования:';
@@ -106,7 +116,7 @@ export class CallbackHandler {
           });
         } else if (data === 'delete_category') {
           const categories = await this.categoryService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = categories.map((cat) => [
+          const keyboard = categories.map((cat) => [
             { text: cat.name, callback_data: `delete_cat_${cat.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan kategoriyani tanlang:' : '🗑 Выберите категорию для удаления:';
@@ -170,7 +180,7 @@ export class CallbackHandler {
           });
         } else if (data === 'edit_product') {
           const products = await this.productService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = products.map((prod) => [
+          const keyboard = products.map((prod) => [
             { text: prod.name, callback_data: `edit_prod_${prod.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan mahsulotni tanlang:' : '✏️ Выберите товар для редактирования:';
@@ -221,7 +231,7 @@ export class CallbackHandler {
           });
         } else if (data === 'delete_product') {
           const products = await this.productService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = products.map((prod) => [
+          const keyboard = products.map((prod) => [
             { text: prod.name, callback_data: `delete_prod_${prod.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan mahsulotni tanlang:' : '🗑 Выберите товар для удаления:';
@@ -241,7 +251,7 @@ export class CallbackHandler {
           });
         } else if (data === 'edit_user') {
           const users = await this.userService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = users.map((user) => [
+          const keyboard = users.map((user) => [
             { text: user.fullName || (language === 'uz' ? 'Kiritilmagan' : 'Не указано'), callback_data: `edit_user_${user.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan foydalanuvchini tanlang:' : '✏️ Выберите пользователя для редактирования:';
@@ -268,7 +278,7 @@ export class CallbackHandler {
           });
         } else if (data === 'delete_user') {
           const users = await this.userService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = users.map((user) => [
+          const keyboard = users.map((user) => [
             { text: user.fullName || (language === 'uz' ? 'Kiritilmagan' : 'Не указано'), callback_data: `delete_user_${user.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan foydalanuvchini tanlang:' : '🗑 Выберите пользователя для удаления:';
@@ -282,7 +292,7 @@ export class CallbackHandler {
           });
         } else if (data === 'view_orders') {
           const orders = await this.orderService.findAll(1, 10);
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = orders.length === 10 ? [[{ text: language === 'uz' ? '➡️ Keyingi sahifa' : '➡️ Следующая страница', callback_data: 'view_orders_2' }]] : [];
+          const keyboard = orders.length === 10 ? [[{ text: language === 'uz' ? '➡️ Keyingi sahifa' : '➡️ Следующая страница', callback_data: 'view_orders_2' }]] : [];
           await this.telegramService.sendMessage(chatId, formatOrderList(orders, language), {
             reply_markup: { inline_keyboard: keyboard },
             parse_mode: 'HTML',
@@ -303,7 +313,7 @@ export class CallbackHandler {
           });
         } else if (data === 'view_deliveries') {
           const deliveries = await this.deliveryService.findAll(1, 10);
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = deliveries.length === 10 ? [[{ text: language === 'uz' ? '➡️ Keyingi sahifa' : '➡️ Следующая страница', callback_data: 'view_deliveries_2' }]] : [];
+          const keyboard = deliveries.length === 10 ? [[{ text: language === 'uz' ? '➡️ Keyingi sahifa' : '➡️ Следующая страница', callback_data: 'view_deliveries_2' }]] : [];
           await this.telegramService.sendMessage(chatId, formatDeliveryList(deliveries, language), {
             reply_markup: { inline_keyboard: keyboard },
             parse_mode: 'HTML',
@@ -324,7 +334,7 @@ export class CallbackHandler {
           });
         } else if (data === 'edit_delivery') {
           const deliveries = await this.deliveryService.findAll(1, 10);
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = deliveries.map((delivery) => [
+          const keyboard = deliveries.map((delivery) => [
             { text: `📋 ID: ${delivery.id}`, callback_data: `edit_delivery_${delivery.id}` },
           ]);
           const message = language === 'uz' ? '✏️ Tahrir qilinadigan yetkazib berishni tanlang:' : '✏️ Выберите доставку для редактирования:';
@@ -356,7 +366,7 @@ export class CallbackHandler {
           });
         } else if (data === 'delete_feedback') {
           const feedbacks = await this.feedbackService.findAll();
-          const keyboard: TelegramBot.InlineKeyboardButton[][] = feedbacks.map((fb) => [
+          const keyboard = feedbacks.map((fb) => [
             { text: `📋 ID: ${fb.id}, ${language === 'uz' ? 'Reyting' : 'Рейтинг'}: ${fb.rating}`, callback_data: `delete_fb_${fb.id}` },
           ]);
           const message = language === 'uz' ? '🗑 O‘chiriladigan feedbackni tanlang:' : '🗑 Выберите отзыв для удаления:';
@@ -397,10 +407,34 @@ export class CallbackHandler {
             parse_mode: 'HTML',
             reply_markup: getAdminKeyboard(language),
           });
+        } else if (data === 'my_profile') {
+          const user = await this.userService.findByTelegramId(telegramId);
+          const message = language === 'uz'
+            ? `👤 Ismingiz: ${user.fullName || 'Kiritilmagan'}\n📞 Telefon: ${user.phone || 'Kiritilmagan'}`
+            : `👤 Ваше имя: ${user.fullName || 'Не указано'}\n📞 Телефон: ${user.phone || 'Не указано'}`;
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getAdminKeyboard(language),
+          });
+        } else if (data === 'about_us') {
+          const message = language === 'uz'
+            ? 'ℹ️ Biz haqimizda: Bu bot sizga mahsulotlar, buyurtmalar va foydalanuvchilar bilan ishlashda yordam beradi.'
+            : 'ℹ️ О нас: Этот бот помогает вам работать с товарами, заказами и пользователями.';
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getAdminKeyboard(language),
+          });
+        } else if (data === 'order_history') {
+          const orders = await this.orderService.findAll(1, 10);
+          await this.telegramService.sendMessage(chatId, formatOrderList(orders, language), {
+            parse_mode: 'HTML',
+            reply_markup: getAdminKeyboard(language),
+          });
         }
+
       } catch (error) {
         this.logger.error(`Error in callback: ${error.message}`);
-        const message = language === 'uz' ? '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.' : '❌ Произошла ошибка, попробуйте позже.';
+        const message = language === 'uz'
+          ? '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.'
+          : '❌ Произошла ошибка, попробуйте позже.';
         await this.telegramService.sendMessage(chatId, message, {});
       } finally {
         try {

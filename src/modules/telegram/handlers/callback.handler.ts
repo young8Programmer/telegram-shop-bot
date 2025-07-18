@@ -154,52 +154,73 @@ export class CallbackHandler {
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: getAdminKeyboard(language),
           });
-        } else if (data === 'add_product') {
-          const message = language === 'uz'
-            ? '📦 Mahsulot ma‘lumotlarini kiriting (nomi o‘zbekcha;nom ruscha;narxi;tasviri o‘zbekcha;tasviri ruscha;rasm URL;kategoriya ID;ombordagi soni):'
-            : '📦 Введите данные товара (название на узбекском;название на русском;цена;описание на узбекском;описание на русском;URL изображения;ID категории;кол-во на складе):';
-          await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
-          bot.once('message', async (msg) => {
-            try {
-              const [name, nameRu, price, description, descriptionRu, imageUrl, categoryId, stock] = msg.text.split(';');
-              const parsedCategoryId = parseInt(categoryId.trim());
-              const parsedStock = parseInt(stock.trim());
-              if (isNaN(parsedCategoryId) || isNaN(parsedStock)) {
-                const errorMessage = language === 'uz'
-                  ? '❌ Kategoriya ID yoki ombor soni noto‘g‘ri.'
-                  : '❌ Неверный ID категории или количество на складе.';
-                await this.telegramService.sendMessage(chatId, errorMessage, {});
-                return;
-              }
-              const category = await this.categoryService.findOne(parsedCategoryId);
-              if (!category) {
-                const errorMessage = language === 'uz'
-                  ? `❌ Kategoriya ID ${parsedCategoryId} topilmadi.`
-                  : `❌ Категория с ID ${parsedCategoryId} не найдена.`;
-                await this.telegramService.sendMessage(chatId, errorMessage, {});
-                return;
-              }
-              await this.productService.create({
-                name: name.trim(),
-                nameRu: nameRu.trim(),
-                price: parseFloat(price.trim()),
-                description: description.trim(),
-                descriptionRu: descriptionRu.trim() || null,
-                imageUrl: imageUrl.trim(),
-                categoryId: parsedCategoryId,
-                stock: parsedStock,
-                isActive: true,
-              });
-              const successMessage = language === 'uz' ? '✅ Mahsulot qo‘shildi.' : '✅ Товар добавлен.';
-              await this.telegramService.sendMessage(chatId, successMessage, {
-                reply_markup: getAdminKeyboard(language),
-              });
-            } catch (error) {
-              this.logger.error(`Error in add_product: ${error.message}`);
-              const errorMessage = language === 'uz' ? '❌ Mahsulot qo‘shishda xato yuz berdi.' : '❌ Ошибка при добавлении товара.';
-              await this.telegramService.sendMessage(chatId, errorMessage, {});
-            }
-          });
+        }else if (data === 'add_product') {
+  const message = language === 'uz'
+    ? '📦 Mahsulot ma‘lumotlarini kiriting (nomi o‘zbekcha;nom ruscha;narxi;tasviri o‘zbekcha;tasviri ruscha;rasm URL;kategoriya ID;ombordagi soni):'
+    : '📦 Введите данные товара (название на узбекском;название на русском;цена;описание на узбекском;описание на русском;URL изображения;ID категории;кол-во на складе):';
+
+  await this.telegramService.sendMessage(chatId, message, { reply_markup: { force_reply: true } });
+
+  bot.once('message', async (msg) => {
+    try {
+      const parts = msg.text.split(';');
+      if (parts.length < 8) {
+        const errorMessage = language === 'uz'
+          ? '❌ Ma‘lumot to‘liq emas. Iltimos, 8 ta maydonni kiritishingiz kerak.'
+          : '❌ Данных недостаточно. Пожалуйста, введите все 8 полей.';
+        await this.telegramService.sendMessage(chatId, errorMessage, {});
+        return;
+      }
+
+      const [name, nameRu, price, description, descriptionRu, imageUrl, categoryId, stock] = parts;
+
+      const parsedCategoryId = parseInt(categoryId.trim());
+      const parsedStock = parseInt(stock.trim());
+
+      if (isNaN(parsedCategoryId) || isNaN(parsedStock)) {
+        const errorMessage = language === 'uz'
+          ? '❌ Kategoriya ID yoki ombor soni noto‘g‘ri.'
+          : '❌ Неверный ID категории или количество на складе.';
+        await this.telegramService.sendMessage(chatId, errorMessage, {});
+        return;
+      }
+
+      const category = await this.categoryService.findOne(parsedCategoryId);
+      if (!category) {
+        const errorMessage = language === 'uz'
+          ? `❌ Kategoriya ID ${parsedCategoryId} topilmadi.`
+          : `❌ Категория с ID ${parsedCategoryId} не найдена.`;
+        await this.telegramService.sendMessage(chatId, errorMessage, {});
+        return;
+      }
+
+      await this.productService.create({
+        name: name.trim(),
+        nameRu: nameRu.trim(),
+        price: parseFloat(price.trim()),
+        description: description.trim(),
+        descriptionRu: descriptionRu.trim() || null,
+        imageUrl: imageUrl.trim(),
+        categoryId: parsedCategoryId,
+        stock: parsedStock,
+        isActive: true,
+      });
+
+      const successMessage = language === 'uz'
+        ? '✅ Mahsulot qo‘shildi.'
+        : '✅ Товар добавлен.';
+      await this.telegramService.sendMessage(chatId, successMessage, {
+        reply_markup: getAdminKeyboard(language),
+      });
+
+    } catch (error) {
+      this.logger.error(`Error in add_product: ${error.message}`);
+      const errorMessage = language === 'uz'
+        ? '❌ Mahsulot qo‘shishda xato yuz berdi.'
+        : '❌ Ошибка при добавлении товара.';
+      await this.telegramService.sendMessage(chatId, errorMessage, {});
+    }
+  });
         } else if (data === 'view_products') {
           const products = await this.productService.findAll();
           await this.telegramService.sendMessage(chatId, formatProductList(products, language), {

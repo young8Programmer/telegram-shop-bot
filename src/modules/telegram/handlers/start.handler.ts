@@ -21,41 +21,29 @@ export class StartHandler {
       const telegramId = msg.from.id.toString();
       const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
 
-      this.logger.log(`Processing /start for telegramId: ${telegramId}`);
-      const startTime = Date.now();
+      let user = await this.userService.registerUser({ telegramId, fullName });
 
-      try {
-        let user = await this.userService.registerUser({ telegramId, fullName });
-        const duration = Date.now() - startTime;
-
-        if (!user.language) {
-          await this.sendLanguageSelection(chatId, fullName, true);
-          return;
-        }
-
-        if (!user.phone) {
-          const message = user.language === 'ru'
-            ? '📞 Пожалуйста, отправьте ваш номер телефона:'
-            : '📞 Iltimos, telefon raqamingizni yuboring:';
-          await this.telegramService.sendMessage(chatId, message, {
-            reply_markup: getMainKeyboard(true, user.language),
-          });
-          return;
-        }
-
-        const message = user.language === 'ru'
-          ? `👋 Добро пожаловать обратно, ${fullName}! 🛍️ Пользуйтесь нашим магазином.`
-          : `👋 Qaytganingizdan xursandmiz, ${fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`;
-        await this.telegramService.sendMessage(chatId, message, {
-          reply_markup: getMainKeyboard(false, user.language),
-        });
-
-      } catch (error) {
-        await this.telegramService.sendMessage(
-          chatId,
-          '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.\n❌ Ошибка произошла, попробуйте позже.',
-        );
+      if (!user.language) {
+        await this.sendLanguageSelection(chatId, fullName, true);
+        return;
       }
+
+      if (!user.phone) {
+        const message = user.language === 'ru'
+          ? '📞 Пожалуйста, отправьте ваш номер телефона:'
+          : '📞 Iltimos, telefon raqamingizni yuboring:';
+        await this.telegramService.sendMessage(chatId, message, {
+          reply_markup: getMainKeyboard(true, user.language),
+        });
+        return;
+      }
+
+      const message = user.language === 'ru'
+        ? `👋 Добро пожаловать обратно, ${fullName}! 🛍️ Пользуйтесь нашим магазином.`
+        : `👋 Qaytganingizdan xursandmiz, ${fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`;
+      await this.telegramService.sendMessage(chatId, message, {
+        reply_markup: getMainKeyboard(false, user.language),
+      });
     });
 
     bot.on('message', async (msg) => {

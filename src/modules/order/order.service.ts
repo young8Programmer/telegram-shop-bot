@@ -163,16 +163,21 @@ export class OrderService {
   }
 
   async updateStatus(id: number, status: typeof ORDER_STATUS[keyof typeof ORDER_STATUS]): Promise<Order> {
-    const order = await this.findOne(id);
-    order.status = status;
-    order.updatedAt = new Date();
-    await this.orderRepository.save(order);
+  const order = await this.findOne(id);
+  order.status = status;
+  order.updatedAt = new Date();
+  await this.orderRepository.save(order);
+  const language = order.user.language || 'uz';
 
-    const message = `📋 Buyurtma #${id} statusi yangilandi: ${status}`;
-    await this.telegramService.sendMessage(order.user.telegramId, message, { parse_mode: 'HTML' });
+  const message = language === 'uz'
+    ? `📋 Buyurtma #${id} statusi yangilandi: ${status}`
+    : `📋 Статус заказа #${id} обновлён: ${status}`;
 
-    return order;
-  }
+  await this.telegramService.sendMessage(order.user.telegramId, message, { parse_mode: 'HTML' });
+
+  return order;
+}
+
 
   async update(id: number, dto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);

@@ -50,8 +50,12 @@ export class StartHandler {
 
     bot.onText(/\/language|tilni o‘zgartirish|изменить язык/i, async (msg) => {
       const chatId = msg.chat.id;
+      const telegramId = msg.from.id.toString();
       const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
-      await this.sendLanguageSelection(chatId, fullName, false);
+
+      // Foydalanuvchi ma'lumotlarini tekshirish
+      const user = await this.userService.findByTelegramId(telegramId);
+      await this.sendLanguageSelection(chatId, fullName, !user.language);
     });
 
     bot.on('callback_query', async (query) => {
@@ -59,39 +63,44 @@ export class StartHandler {
       const telegramId = query.from.id.toString();
       const data = query.data;
 
-      if (data === 'lang_uz' || data === 'lang_ru') {
-        const newLang = data === 'lang_uz' ? 'uz' : 'ru';
-        const user = await this.userService.findByTelegramId(telegramId);
+      if (data !== 'lang_uz' && data !== 'lang_ru') {
+        return; // Faqat til tanlash callback'larini qayta ishlash
+      }
 
-        if (user.language === newLang) {
-          const message = newLang === 'ru'
-            ? '✅ Язык уже установлен на русский!'
-            : '✅ Til allaqachon o‘zbek tilida!';
-          await this.telegramService.sendMessage(chatId, message, {
-            parse_mode: 'HTML',
-            reply_markup: getMainKeyboard(user.phone ? false : true, newLang),
-          });
-          return;
-        }
+      const newLang = data === 'lang_uz' ? 'uz' : 'ru';
+      const user = await this.userService.findByTelegramId(telegramId);
 
-        await this.userService.updateLanguage(telegramId, newLang);
-        const confirmMessage = newLang === 'ru'
-          ? '✅ Язык изменён на русский!'
-          : '✅ Til o‘zbekchaga o‘zgartirildi!';
-        await this.telegramService.sendMessage(chatId, confirmMessage, {
+      // Agar til allaqachon tanlangan bo'lsa
+      if (user.language === newLang) {
+        const message = newLang === 'ru'
+          ? '✅ Язык уже установлен на русский!'
+          : '✅ Til allaqachon o‘zbek tilida!';
+        await this.telegramService.sendMessage(chatId, message, {
           parse_mode: 'HTML',
           reply_markup: getMainKeyboard(user.phone ? false : true, newLang),
         });
+        return;
+      }
 
-        if (!user.phone) {
-          const phoneMessage = newLang === 'ru'
-            ? '📞 Пожалуйста, отправьте ваш номер телефона:'
-            : '📞 Iltimos, telefon raqamingizni yuboring:';
-          await this.telegramService.sendMessage(chatId, phoneMessage, {
-            parse_mode: 'HTML',
-            reply_markup: getMainKeyboard(true, newLang),
-          });
-        }
+      // Tilni yangilash
+      await this.userService.updateLanguage(telegramId, newLang);
+      const confirmMessage = newLang === 'ru'
+        ? '✅ Язык изменён на русский!'
+        : '✅ Til o‘zbekchaga o‘zgartirildi!';
+      await this.telegramService.sendMessage(chatId, confirmMessage, {
+        parse_mode: 'HTML',
+        reply_markup: getMainKeyboard(user.phone ? false : true, newLang),
+      });
+
+      // Telefon raqami so'rovi
+      if (!user.phone) {
+        const phoneMessage = newLang === 'ru'
+          ? '📞 Пожалуйста, отправьте ваш номер телефона:'
+          : '📞 Iltimos, telefon raqamingizni yuboring:';
+        await this.telegramService.sendMessage(chatId, phoneMessage, {
+          parse_mode: 'HTML',
+          reply_markup: getMainKeyboard(true, newLang),
+        });
       }
     });
   }

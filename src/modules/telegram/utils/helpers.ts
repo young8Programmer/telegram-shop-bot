@@ -65,22 +65,22 @@ export function formatOrderList(orders: Order[], language: string = 'uz'): strin
       const items = order.orderItems?.map((item) => `${language === 'uz' ? item.product.name : item.product.nameRu || item.product.name} - ${item.quantity} ${language === 'uz' ? 'dona' : 'шт.'}`).join(', ');
       const delivery = order.deliveries && order.deliveries.length > 0
         ? [
-            `${language === 'uz' ? '📍 <b>Manzil</b>' : '📍 <b>Адрес</b>'}: (${order.deliveries[0].latitude}, ${order.deliveries[0].longitude})`,
-            `${language === 'uz' ? '🏠 <b>Qo‘shimcha</b>' : '🏠 <b>Дополнительно</b>'}: ${order.deliveries[0].addressDetails || 'N/A'}`,
-            `${language === 'uz' ? '📊 <b>Yetkazib berish statusi</b>' : '📊 <b>Статус доставки</b>'}: ${order.deliveries[0].status || 'N/A'}`,
-            `${language === 'uz' ? '🚚 <b>Yetkazib beruvchi</b>' : '🚚 <b>Курьер</b>'}: ${order.deliveries[0].courierName || 'N/A'}`,
-            `${language === 'uz' ? '📞 <b>Telefon</b>' : '📞 <b>Телефон</b>'}: ${order.deliveries[0].courierPhone || 'N/A'}`,
-            `${language === 'uz' ? '📅 <b>Yetkazib berish sanasi</b>' : '📅 <b>Дата доставки</b>'}: ${order.deliveries[0].deliveryDate?.toLocaleString(language === 'uz' ? 'uz-UZ' : 'ru-RU') || 'N/A'}`,
+            `${language === 'uz' ? '📍 Manzil' : '📍 Адрес'}: (${order.deliveries[0].latitude}, ${order.deliveries[0].longitude})`,
+            `${language === 'uz' ? '🏠 Qo‘shimcha' : '🏠 Дополнительно'}: ${order.deliveries[0].addressDetails || 'N/A'}`,
+            `${language === 'uz' ? '📊 Yetkazib berish statusi' : '📊 Статус доставки'}: ${order.deliveries[0].status || 'N/A'}`,
+            `${language === 'uz' ? '🚚 Yetkazib beruvchi' : '🚚 Курьер'}: ${order.deliveries[0].courierName || 'N/A'}`,
+            `${language === 'uz' ? '📞 Telefon' : '📞 Телефон'}: ${order.deliveries[0].courierPhone || 'N/A'}`,
+            `${language === 'uz' ? '📅 Yetkazib berish sanasi' : '📅 Дата доставки'}: ${order.deliveries[0].deliveryDate?.toLocaleString(language === 'uz' ? 'uz-UZ' : 'ru-RU') || 'N/A'}`,
           ].join('\n')
         : language === 'uz' ? '❌ Yetkazib berish ma‘lumotlari yo‘q' : '❌ Данные о доставке отсутствуют';
 
       return [
-        `${language === 'uz' ? '📋 <b>Buyurtma</b>' : '📋 <b>Заказ</b>'} #${order.id}`,
-        `${language === 'uz' ? '👤 <b>Foydalanuvchi</b>' : '👤 <b>Пользователь</b>'}: ${order.user?.fullName || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}`,
-        `${language === 'uz' ? '💸 <b>Jami</b>' : '💸 <b>Итого</b>'}: ${order.totalAmount} so‘m`,
-        `${language === 'uz' ? '📊 <b>Status</b>' : '📊 <b>Статус</b>'}: ${order.status}`,
-        `${language === 'uz' ? '💵 <b>To‘lov turi</b>' : '💵 <b>Тип оплаты</b>'}: ${order.paymentType || (language === 'uz' ? 'To‘lanmagan' : 'Не оплачен')}`,
-        `${language === 'uz' ? '📦 <b>Mahsulotlar</b>' : '📦 <b>Товары</b>'}: ${items || 'N/A'}`,
+        `${language === 'uz' ? '📋 Buyurtma' : '📋 Заказ'} #${order.id}`,
+        `${language === 'uz' ? '👤 Foydalanuvchi' : '👤 Пользователь'}: ${order.user?.fullName || (language === 'uz' ? 'Kiritilmagan' : 'Не указано')}`,
+        `${language === 'uz' ? '💸 Jami' : '💸 Итого'}: ${order.totalAmount} so‘m`,
+        `${language === 'uz' ? '📊 Status' : '📊 Статус'}: ${order.status}`,
+        `${language === 'uz' ? '💵 To‘lov turi' : '💵 Тип оплаты'}: ${order.paymentType || (language === 'uz' ? 'To‘lanmagan' : 'Не оплачен')}`,
+        `${language === 'uz' ? '📦 Mahsulotlar' : '📦 Товары'}: ${items || 'N/A'}`,
         delivery,
         `━━━━━━━━━━━━━━━`,
       ].join('\n');

@@ -43,14 +43,14 @@ export class UserCallbackHandler {
         if (data.startsWith('lang_')) {
           const selectedLanguage = data.split('_')[1];
           await this.userService.updateLanguage(telegramId, selectedLanguage);
-          user = await this.userService.findByTelegramId(telegramId); // Yangilangan foydalanuvchi ma’lumotlarini olish
+          user = await this.userService.findByTelegramId(telegramId);
           language = selectedLanguage;
           const message = language === 'uz'
             ? '✅ Til o‘zbekchaga o‘zgartirildi!'
             : '✅ Язык изменен на русский!';
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: {
-              inline_keyboard: [], // Til tanlanganidan keyin menyuni yopish
+              inline_keyboard: [],
             },
           });
           if (!user.phone) {
@@ -69,7 +69,6 @@ export class UserCallbackHandler {
             });
           }
         } else if (!user.language) {
-          // Agar til tanlanmagan bo‘lsa, foydalanuvchidan til tanlashni so‘rash
           await this.telegramService.sendMessage(
             chatId,
             language === 'uz'
@@ -305,8 +304,8 @@ export class UserCallbackHandler {
         }
       } catch (error) {
         this.logger.error(`Error in user callback: ${error.message}`);
-        const user = await this.userService.findByTelegramId(telegramId); // Foydalanuvchi ma'lumotlarini qayta olish
-        const language = user.language || 'uz'; // Tilni foydalanuvchidan olish
+        const user = await this.userService.findByTelegramId(telegramId);
+        const language = user.language || 'uz';
         const message = language === 'uz' ? '❌ Xatolik yuz berdi, iltimos keyinroq urinib ko‘ring.' : '❌ Произошла ошибка, попробуйте позже.';
         await this.telegramService.sendMessage(chatId, message, {});
       } finally {

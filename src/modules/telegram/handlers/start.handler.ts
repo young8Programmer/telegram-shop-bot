@@ -27,8 +27,6 @@ export class StartHandler {
       try {
         let user = await this.userService.registerUser({ telegramId, fullName });
         const duration = Date.now() - startTime;
-
-        // Har qanday holatda ham tilni qayta so‘raymiz
         await this.telegramService.sendMessage(
           chatId,
           `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
@@ -44,8 +42,6 @@ export class StartHandler {
             },
           },
         );
-
-        // Telefon raqami bo‘lmasa, keyin telefon so‘rash
         if (!user.phone) {
           this.logger.log(`User found but phone is missing in ${duration}ms`);
           const message = `Iltimos, telefon raqamingizni yuboring:\nПожалуйста, отправьте ваш номер телефона:`;

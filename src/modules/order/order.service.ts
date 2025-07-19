@@ -85,34 +85,36 @@ export class OrderService {
 
     return savedOrder;
   }
-async notifyAdminOrderCreated(order: Order, user: any) {
-  const adminChatId = '5661241603';
-  const adminUser = await this.userService.findByTelegramId(adminChatId);
-  const adminLang = adminUser?.language || 'uz';
 
-  const items = order.orderItems?.map((item) =>
-    adminLang === 'uz'
-      ? `${item.product.name} - ${item.quantity} dona`
-      : `${item.product.nameRu || item.product.name} - ${item.quantity} шт.`
-  ).join(', ');
+  async notifyAdminOrderCreated(order: Order, user: any) {
+  const admins = await this.userService.findAllAdmins(); // isAdmin=true bo‘lganlar
 
-  const message = adminLang === 'uz'
-    ? `🔔 <b>Yangi buyurtma yaratildi!</b>\n` +
-      `📋 <b>ID:</b> ${order.id}\n` +
-      `👤 <b>Foydalanuvchi:</b> ${user.fullName || 'Kiritilmagan'}\n` +
-      `📦 <b>Mahsulotlar:</b> ${items || 'N/A'}\n` +
-      `💸 <b>Jami:</b> ${order.totalAmount} so‘m\n` +
-      `📊 <b>Status:</b> ${order.status}\n` +
-      `━━━━━━━━━━━━━━━`
-    : `🔔 <b>Новый заказ создан!</b>\n` +
-      `📋 <b>ID:</b> ${order.id}\n` +
-      `👤 <b>Пользователь:</b> ${user.fullName || 'Не указано'}\n` +
-      `📦 <b>Товары:</b> ${items || 'N/A'}\n` +
-      `💸 <b>Итого:</b> ${order.totalAmount} сум\n` +
-      `📊 <b>Статус:</b> ${order.status}\n` +
-      `━━━━━━━━━━━━━━━`;
+  for (const admin of admins) {
+    const adminLang = admin.language || 'uz';
+    const items = order.orderItems?.map((item) =>
+      adminLang === 'uz'
+        ? `${item.product.name} - ${item.quantity} dona`
+        : `${item.product.nameRu || item.product.name} - ${item.quantity} шт.`
+    ).join(', ');
 
-  await this.telegramService.sendMessage(adminChatId, message, { parse_mode: 'HTML' });
+    const message = adminLang === 'uz'
+      ? `🔔 <b>Yangi buyurtma yaratildi!</b>\n` +
+        `📋 <b>ID:</b> ${order.id}\n` +
+        `👤 <b>Foydalanuvchi:</b> ${user.fullName || 'Kiritilmagan'}\n` +
+        `📦 <b>Mahsulotlar:</b> ${items || 'N/A'}\n` +
+        `💸 <b>Jami:</b> ${order.totalAmount} so‘m\n` +
+        `📊 <b>Status:</b> ${order.status}\n` +
+        `━━━━━━━━━━━━━━━`
+      : `🔔 <b>Новый заказ создан!</b>\n` +
+        `📋 <b>ID:</b> ${order.id}\n` +
+        `👤 <b>Пользователь:</b> ${user.fullName || 'Не указано'}\n` +
+        `📦 <b>Товары:</b> ${items || 'N/A'}\n` +
+        `💸 <b>Итого:</b> ${order.totalAmount} сум\n` +
+        `📊 <b>Статус:</b> ${order.status}\n` +
+        `━━━━━━━━━━━━━━━`;
+
+    await this.telegramService.sendMessage(admin.telegramId, message, { parse_mode: 'HTML' });
+  }
 }
 
 

@@ -17,6 +17,11 @@ export class UserController {
     return this.userService.registerUser(createUserDto);
   }
 
+  @Get('admins')
+  async findAllAdmins() {
+    return this.userService.findAllAdmins();
+  }
+
   @Get()
   @ApiOperation({ summary: 'Barcha foydalanuvchilarni olish' })
   @ApiResponse({ status: 200, description: 'Foydalanuvchilar ro‘yxati.' })

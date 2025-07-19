@@ -245,8 +245,12 @@ export class UserCallbackHandler {
 
           await this.telegramService.sendMessage(chatId, message, { parse_mode: 'HTML' });
 
-          const adminChatId = '5661241603';
-          await this.telegramService.sendMessage(adminChatId, message, { parse_mode: 'HTML' });
+          await this.telegramService.sendMessage(chatId, message, { parse_mode: 'HTML' });
+
+          const admins = await this.userService.findAllAdmins();
+          for (const admin of admins) {
+            await this.telegramService.sendMessage(admin.telegramId, message, { parse_mode: 'HTML' });
+          }
         } else if (data.startsWith('feedback_')) {
           const productId = parseInt(data.split('_')[1]);
           const message = language === 'uz' ? '⭐ Reytingni tanlang:' : '⭐ Выберите рейтинг:';

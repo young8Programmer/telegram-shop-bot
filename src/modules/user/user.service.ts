@@ -79,4 +79,12 @@ export class UserService {
       throw new NotFoundException('Foydalanuvchi topilmadi');
     }
   }
+
+  async findAllAdmins(): Promise<User[]> {
+  return this.userRepository.find({
+    where: { isAdmin: true },
+    relations: ['orders', 'cartItems', 'feedbacks'],
+  });
+}
+
 }

@@ -27,7 +27,8 @@ export class CategoriesHandler {
         const categories = await this.categoryService.findAll();
         const duration = Date.now() - startTime;
         this.logger.log(`Fetched ${categories.length} categories in ${duration}ms`);
-        const keyboard = categories.map((cat) => [{ text: cat.name, callback_data: `category_${cat.id}` }]);
+        const keyboard = categories.map((cat) => [
+       { text: language === 'uz' ? cat.name : cat.nameRu || cat.name, callback_data: `category_${cat.id}` },]);
         const message = language === 'uz' ? 'Kategoriyalarni tanlang:' : 'Выберите категорию:';
         await this.telegramService.sendMessage(chatId, message, {
           reply_markup: { inline_keyboard: keyboard },

@@ -39,36 +39,8 @@ export class UserCallbackHandler {
         this.logger.log(`Processing user callback: ${data} for telegramId: ${telegramId}`);
         let user = await this.userService.findByTelegramId(telegramId);
         let language = user.language || 'uz';
-
-        if (data.startsWith('lang_')) {
-          const selectedLanguage = data.split('_')[1];
-          await this.userService.updateLanguage(telegramId, selectedLanguage);
-          user = await this.userService.findByTelegramId(telegramId);
-          language = selectedLanguage;
-          const message = language === 'uz'
-            ? '✅ Til o‘zbekchaga o‘zgartirildi!'
-            : '✅ Язык изменен на русский!';
-          await this.telegramService.sendMessage(chatId, message, {
-            reply_markup: {
-              inline_keyboard: [],
-            },
-          });
-          if (!user.phone) {
-            const phoneMessage = language === 'uz'
-              ? 'Iltimos, telefon raqamingizni yuboring:'
-              : 'Пожалуйста, отправьте ваш номер телефона:';
-            await this.telegramService.sendMessage(chatId, phoneMessage, {
-              reply_markup: getMainKeyboard(true, language),
-            });
-          } else {
-            const welcomeMessage = language === 'uz'
-              ? `Qaytganingizdan xursandmiz, ${user.fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`
-              : `Рады вашему возвращению, ${user.fullName}! 🛒 Пользуйтесь нашим магазином!`;
-            await this.telegramService.sendMessage(chatId, welcomeMessage, {
-              reply_markup: getMainKeyboard(false, language),
-            });
-          }
-        } else if (!user.language) {
+        
+        if (!user.language) {
           await this.telegramService.sendMessage(
             chatId,
             language === 'uz'

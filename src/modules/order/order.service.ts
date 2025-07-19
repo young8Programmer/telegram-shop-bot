@@ -81,27 +81,40 @@ export class OrderService {
     await this.orderRepository.save(savedOrder);
 
     await this.cartService.clearCart(telegramId);
-
-    // Faqat admin uchun xabar yuboramiz
     await this.notifyAdminOrderCreated(savedOrder, user);
 
     return savedOrder;
   }
+async notifyAdminOrderCreated(order: Order, user: any) {
+  const adminChatId = '5661241603';
+  const adminUser = await this.userService.findByTelegramId(adminChatId);
+  const adminLang = adminUser?.language || 'uz';
 
-  async notifyAdminOrderCreated(order: Order, user: any) {
-    const adminChatId = '5661241603';
-    const items = order.orderItems?.map((item) => `${item.product.name} - ${item.quantity} dona`).join(', ');
-    const message = `
-  🔔 <b>Yangi buyurtma yaratildi!</b>
-  📋 <b>ID:</b> ${order.id}
-  👤 <b>Foydalanuvchi:</b> ${user.fullName || 'Kiritilmagan'}
-  📦 <b>Mahsulotlar:</b> ${items || 'N/A'}
-  💸 <b>Jami:</b> ${order.totalAmount} so‘m
-  📊 <b>Status:</b> ${order.status}
-━━━━━━━━━━━━━━━
-`;
-    await this.telegramService.sendMessage(adminChatId, message, { parse_mode: 'HTML' });
-  }
+  const items = order.orderItems?.map((item) =>
+    adminLang === 'uz'
+      ? `${item.product.name} - ${item.quantity} dona`
+      : `${item.product.nameRu || item.product.name} - ${item.quantity} шт.`
+  ).join(', ');
+
+  const message = adminLang === 'uz'
+    ? `🔔 <b>Yangi buyurtma yaratildi!</b>\n` +
+      `📋 <b>ID:</b> ${order.id}\n` +
+      `👤 <b>Foydalanuvchi:</b> ${user.fullName || 'Kiritilmagan'}\n` +
+      `📦 <b>Mahsulotlar:</b> ${items || 'N/A'}\n` +
+      `💸 <b>Jami:</b> ${order.totalAmount} so‘m\n` +
+      `📊 <b>Status:</b> ${order.status}\n` +
+      `━━━━━━━━━━━━━━━`
+    : `🔔 <b>Новый заказ создан!</b>\n` +
+      `📋 <b>ID:</b> ${order.id}\n` +
+      `👤 <b>Пользователь:</b> ${user.fullName || 'Не указано'}\n` +
+      `📦 <b>Товары:</b> ${items || 'N/A'}\n` +
+      `💸 <b>Итого:</b> ${order.totalAmount} сум\n` +
+      `📊 <b>Статус:</b> ${order.status}\n` +
+      `━━━━━━━━━━━━━━━`;
+
+  await this.telegramService.sendMessage(adminChatId, message, { parse_mode: 'HTML' });
+}
+
 
   async findAll(page: number = 1, limit: number = 10): Promise<Order[]> {
     this.logger.log(`Fetching orders, page: ${page}, limit: ${limit}`);

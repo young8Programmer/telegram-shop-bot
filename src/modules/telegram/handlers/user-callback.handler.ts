@@ -39,26 +39,8 @@ export class UserCallbackHandler {
         this.logger.log(`Processing user callback: ${data} for telegramId: ${telegramId}`);
         let user = await this.userService.findByTelegramId(telegramId);
         let language = user.language || 'uz';
-        
-        if (!user.language) {
-          await this.telegramService.sendMessage(
-            chatId,
-            language === 'uz'
-              ? 'Iltimos, avval tilni tanlang:'
-              : 'Пожалуйста, сначала выберите язык:',
-            {
-              reply_markup: {
-                inline_keyboard: [
-                  [
-                    { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
-                    { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
-                  ],
-                ],
-                one_time_keyboard: true,
-              },
-            },
-          );
-        } else if (data.startsWith('category_')) {
+
+        if (data.startsWith('category_')) {
           const categoryId = parseInt(data.split('_')[1]);
           const products = await this.productService.findByCategory(categoryId);
           const keyboard: TelegramBot.InlineKeyboardButton[][] = products.map((prod) => [
@@ -289,4 +271,4 @@ export class UserCallbackHandler {
       }
     });
   }
-} 
+}

@@ -27,42 +27,35 @@ export class StartHandler {
       try {
         let user = await this.userService.registerUser({ telegramId, fullName });
         const duration = Date.now() - startTime;
-        if (!user.language) {
-          this.logger.log(`User found but language is missing in ${duration}ms`);
-          await this.telegramService.sendMessage(
-            chatId,
-            `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
-            {
-              reply_markup: {
-                inline_keyboard: [
-                  [
-                    { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
-                    { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
-                  ],
+
+        // Har qanday holatda ham tilni qayta so‘raymiz
+        await this.telegramService.sendMessage(
+          chatId,
+          `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
+          {
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
+                  { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
                 ],
-                one_time_keyboard: true,
-              },
+              ],
+              one_time_keyboard: true,
             },
-          );
+          },
+        );
+
+        // Telefon raqami bo‘lmasa, keyin telefon so‘rash
+        if (!user.phone) {
+          this.logger.log(`User found but phone is missing in ${duration}ms`);
+          const message = `Iltimos, telefon raqamingizni yuboring:\nПожалуйста, отправьте ваш номер телефона:`;
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getMainKeyboard(true, user.language || 'uz'),
+          });
         } else {
-          if (!user.phone) {
-            this.logger.log(`User found but phone is missing in ${duration}ms`);
-            const message = user.language === 'uz'
-              ? `Xush kelibsiz, ${fullName}! Iltimos, telefon raqamingizni yuboring:`
-              : `Добро пожаловать, ${fullName}! Пожалуйста, отправьте ваш номер телефона:`;
-            await this.telegramService.sendMessage(chatId, message, {
-              reply_markup: getMainKeyboard(true, user.language),
-            });
-          } else {
-            this.logger.log(`Existing user with phone in ${duration}ms`);
-            const message = user.language === 'uz'
-              ? `Qaytganingizdan xursandmiz, ${fullName}! 🛒 Do‘konimizdan bemalol foydalaning!`
-              : `Рады вашему возвращению, ${fullName}! 🛒 Пользуйтесь нашим магазином!`;
-            await this.telegramService.sendMessage(chatId, message, {
-              reply_markup: getMainKeyboard(false, user.language),
-            });
-          }
+          this.logger.log(`Existing user with phone in ${duration}ms`);
         }
+
       } catch (error) {
         this.logger.error(`Error in /start: ${error.message}`);
         await this.telegramService.sendMessage(

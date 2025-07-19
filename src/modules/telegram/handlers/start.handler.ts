@@ -48,7 +48,7 @@ export class StartHandler {
       });
     });
 
-    bot.onText(/\/language/, async (msg) => {
+    bot.onText(/\/language|tilni o‘zgartirish|изменить язык/i, async (msg) => {
       const chatId = msg.chat.id;
       const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
       await this.sendLanguageSelection(chatId, fullName, false);
@@ -83,7 +83,6 @@ export class StartHandler {
           reply_markup: getMainKeyboard(false, newLang),
         });
 
-        // Agar foydalanuvchi telefon raqamini kiritmagan bo‘lsa, telefon so‘raymiz
         if (!user.phone) {
           const phoneMessage = newLang === 'ru'
             ? '📞 Пожалуйста, отправьте ваш номер телефона:'

@@ -15,6 +15,7 @@ export class StartHandler {
 
   handle() {
     const bot = this.telegramService.getBotInstance(); 
+    
     bot.onText(/\/start/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
@@ -28,7 +29,7 @@ export class StartHandler {
         const duration = Date.now() - startTime;
 
         if (!user.language) {
-          await this.sendLanguageSelection(chatId, fullName);
+          await this.sendLanguageSelection(chatId, fullName, true); // Welcome
         }
 
         if (!user.phone) {
@@ -59,21 +60,30 @@ export class StartHandler {
     });
 
     bot.on('message', async (msg) => {
-  const chatId = msg.chat.id;
-  const text = msg.text?.toLowerCase() || '';
-  const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
+      const chatId = msg.chat.id;
+      const text = msg.text?.toLowerCase() || '';
+      const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
 
-  if (text.includes('tilni o‘zgartirish') || text.includes('изменить язык')) {
-    await this.sendLanguageSelection(chatId, fullName);
+      if (text.includes('tilni o‘zgartirish') || text.includes('изменить язык')) {
+        await this.sendLanguageSelection(chatId, fullName, false);
+      }
+    });
+
+    bot.onText(/\/language/, async (msg) => {
+      const chatId = msg.chat.id;
+      const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
+      await this.sendLanguageSelection(chatId, fullName, false);
+    });
   }
-  });
 
-  }
+  private async sendLanguageSelection(chatId: number, fullName: string, isWelcome: boolean = false) {
+    const message = isWelcome
+      ? `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`
+      : `Iltimos, tilni tanlang:\nПожалуйста, выберите язык:`;
 
-  private async sendLanguageSelection(chatId: number, fullName: string) {
     await this.telegramService.sendMessage(
       chatId,
-      `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
+      message,
       {
         reply_markup: {
           inline_keyboard: [

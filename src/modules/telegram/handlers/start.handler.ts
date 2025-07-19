@@ -59,44 +59,48 @@ export class StartHandler {
       const telegramId = query.from.id.toString();
       const data = query.data;
 
-      if (data === 'lang_uz' || data === 'lang_ru') {
-        const newLang = data === 'lang_uz' ? 'uz' : 'ru';
-        let user = await this.userService.findByTelegramId(telegramId);
+      if (data !== 'lang_uz' && data !== 'lang_ru') {
+        await bot.answerCallbackQuery(query.id);
+        return;
+      }
 
-        if (user.language === newLang) {
-          const message = newLang === 'ru'
-            ? '✅ Язык уже установлен на русский!'
-            : '✅ Til allaqachon o‘zbek tilida!';
-          await this.telegramService.sendMessage(chatId, message, {
-            parse_mode: 'HTML',
-            reply_markup: getMainKeyboard(!!user.phone, newLang),
-          });
-          return;
-        }
+      const newLang = data === 'lang_uz' ? 'uz' : 'ru';
+      let user = await this.userService.findByTelegramId(telegramId);
 
-        await this.userService.updateLanguage(telegramId, newLang);
-
-        const confirmMessage = newLang === 'ru'
-          ? '✅ Язык изменён на русский!'
-          : '✅ Til o‘zbekchaga o‘zgartirildi!';
-
-        await this.telegramService.sendMessage(chatId, confirmMessage, {
+      if (user.language === newLang) {
+        const message = newLang === 'ru'
+          ? '✅ Язык уже установлен на русский!'
+          : '✅ Til allaqachon o‘zbek tilida!';
+        await this.telegramService.sendMessage(chatId, message, {
           parse_mode: 'HTML',
           reply_markup: getMainKeyboard(!!user.phone, newLang),
         });
-
-        user = await this.userService.findByTelegramId(telegramId);
-
-        if (!user.phone) {
-          const phoneMessage = newLang === 'ru'
-            ? '📞 Пожалуйста, отправьте ваш номер телефона:'
-            : '📞 Iltimos, telefon raqamingizni yuboring:';
-          await this.telegramService.sendMessage(chatId, phoneMessage, {
-            parse_mode: 'HTML',
-            reply_markup: getMainKeyboard(true, newLang),
-          });
-        }
+        await bot.answerCallbackQuery(query.id);
+        return;
       }
+
+      await this.userService.updateLanguage(telegramId, newLang);
+      user = await this.userService.findByTelegramId(telegramId); // Yangi ma'lumotlarni olish
+
+      const confirmMessage = newLang === 'ru'
+        ? '✅ Язык изменён на русский!'
+        : '✅ Til o‘zbekchaga o‘zgartirildi!';
+      await this.telegramService.sendMessage(chatId, confirmMessage, {
+        parse_mode: 'HTML',
+        reply_markup: getMainKeyboard(!!user.phone, newLang),
+      });
+
+      if (!user.phone) {
+        const phoneMessage = newLang === 'ru'
+          ? '📞 Пожалуйста, отправьте ваш номер телефона:'
+          : '📞 Iltimos, telefon raqamingizni yuboring:';
+        await this.telegramService.sendMessage(chatId, phoneMessage, {
+          parse_mode: 'HTML',
+          reply_markup: getMainKeyboard(true, newLang),
+        });
+      }
+
+      await bot.answerCallbackQuery(query.id);
     });
   }
 

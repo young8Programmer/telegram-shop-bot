@@ -47,8 +47,17 @@ export class ProductService {
   }
 
   async findByCategory(categoryId: number): Promise<Product[]> {
-    return this.productRepository.find({ where: { category: { id: categoryId } }, relations: ['category'] });
-  }
+  const products = await this.productRepository.find({
+    where: { category: { id: categoryId } },
+    relations: ['category'],
+  });
+
+  products.forEach(prod => {
+    console.log(`Product: ${prod.name}, nameRu: ${prod.nameRu}`);
+  });
+
+  return products;
+}
 
   async update(id: number, dto: UpdateProductDto): Promise<Product> {
     const result = await this.productRepository.update(id, dto);

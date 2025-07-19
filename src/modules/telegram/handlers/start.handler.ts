@@ -58,11 +58,16 @@ export class StartHandler {
       }
     });
 
-    bot.onText(/\/language/, async (msg) => {
-      const chatId = msg.chat.id;
-      const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
-      await this.sendLanguageSelection(chatId, fullName);
-    });
+    bot.on('message', async (msg) => {
+  const chatId = msg.chat.id;
+  const text = msg.text?.toLowerCase() || '';
+  const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
+
+  if (text.includes('tilni o‘zgartirish') || text.includes('изменить язык')) {
+    await this.sendLanguageSelection(chatId, fullName);
+  }
+  });
+
   }
 
   private async sendLanguageSelection(chatId: number, fullName: string) {

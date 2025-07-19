@@ -14,8 +14,7 @@ export class StartHandler {
   ) {}
 
   handle() {
-    const bot = this.telegramService.getBotInstance();
-
+    const bot = this.telegramService.getBotInstance(); 
     bot.onText(/\/start/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from.id.toString();
@@ -27,29 +26,27 @@ export class StartHandler {
       try {
         let user = await this.userService.registerUser({ telegramId, fullName });
         const duration = Date.now() - startTime;
-        await this.telegramService.sendMessage(
-          chatId,
-          `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
-          {
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
-                  { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
-                ],
-              ],
-              one_time_keyboard: true,
-            },
-          },
-        );
+
+        if (!user.language) {
+          await this.sendLanguageSelection(chatId, fullName);
+        }
+
         if (!user.phone) {
           this.logger.log(`User found but phone is missing in ${duration}ms`);
-          const message = `Iltimos, telefon raqamingizni yuboring:\nПожалуйста, отправьте ваш номер телефона:`;
+          const message = user.language === 'ru'
+            ? 'Пожалуйста, отправьте ваш номер телефона:'
+            : 'Iltimos, telefon raqamingizni yuboring:';
           await this.telegramService.sendMessage(chatId, message, {
             reply_markup: getMainKeyboard(true, user.language || 'uz'),
           });
         } else {
           this.logger.log(`Existing user with phone in ${duration}ms`);
+          const message = user.language === 'ru'
+            ? `Добро пожаловать обратно, ${fullName}!`
+            : `Qaytganingizdan xursandmiz, ${fullName}!`;
+          await this.telegramService.sendMessage(chatId, message, {
+            reply_markup: getMainKeyboard(false, user.language || 'uz'),
+          });
         }
 
       } catch (error) {
@@ -60,5 +57,29 @@ export class StartHandler {
         );
       }
     });
+
+    bot.onText(/\/language/, async (msg) => {
+      const chatId = msg.chat.id;
+      const fullName = `${msg.from.first_name} ${msg.from.last_name || ''}`.trim();
+      await this.sendLanguageSelection(chatId, fullName);
+    });
+  }
+
+  private async sendLanguageSelection(chatId: number, fullName: string) {
+    await this.telegramService.sendMessage(
+      chatId,
+      `Xush kelibsiz, ${fullName}! Iltimos, tilni tanlang:\nДобро пожаловать, ${fullName}! Пожалуйста, выберите язык:`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🇺🇿 O‘zbekcha', callback_data: 'lang_uz' },
+              { text: '🇷🇺 Русский', callback_data: 'lang_ru' },
+            ],
+          ],
+          one_time_keyboard: true,
+        },
+      },
+    );
   }
 }

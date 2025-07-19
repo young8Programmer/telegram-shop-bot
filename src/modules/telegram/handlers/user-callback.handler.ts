@@ -244,9 +244,6 @@ export class UserCallbackHandler {
               `━━━━━━━━━━━━━━━`;
 
           await this.telegramService.sendMessage(chatId, message, { parse_mode: 'HTML' });
-
-          await this.telegramService.sendMessage(chatId, message, { parse_mode: 'HTML' });
-
           const admins = await this.userService.findAllAdmins();
           for (const admin of admins) {
             await this.telegramService.sendMessage(admin.telegramId, message, { parse_mode: 'HTML' });

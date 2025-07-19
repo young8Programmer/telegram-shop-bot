@@ -28,7 +28,8 @@ export class StartHandler {
         return;
       }
 
-      if (!user.phone) {
+      const hasPhone = !!user.phone && user.phone.trim() !== '';
+      if (!hasPhone) {
         const message = user.language === 'ru'
           ? '📞 Пожалуйста, отправьте ваш номер телефона:'
           : '📞 Iltimos, telefon raqamingizni yuboring:';
@@ -71,9 +72,10 @@ export class StartHandler {
         const message = newLang === 'ru'
           ? '✅ Язык уже установлен на русский!'
           : '✅ Til allaqachon o‘zbek tilida!';
+        const hasPhone = !!user.phone && user.phone.trim() !== '';
         await this.telegramService.sendMessage(chatId, message, {
           parse_mode: 'HTML',
-          reply_markup: getMainKeyboard(!!user.phone, newLang),
+          reply_markup: getMainKeyboard(!hasPhone, newLang),
         });
         await bot.answerCallbackQuery(query.id);
         return;
@@ -85,12 +87,13 @@ export class StartHandler {
       const confirmMessage = newLang === 'ru'
         ? '✅ Язык изменён на русский!'
         : '✅ Til o‘zbekchaga o‘zgartirildi!';
+      const hasPhone = !!user.phone && user.phone.trim() !== '';
       await this.telegramService.sendMessage(chatId, confirmMessage, {
         parse_mode: 'HTML',
-        reply_markup: getMainKeyboard(!!user.phone, newLang),
+        reply_markup: getMainKeyboard(!hasPhone, newLang),
       });
 
-      if (!user.phone) {
+      if (!hasPhone) {
         const phoneMessage = newLang === 'ru'
           ? '📞 Пожалуйста, отправьте ваш номер телефона:'
           : '📞 Iltimos, telefon raqamingizni yuboring:';

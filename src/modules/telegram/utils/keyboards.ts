@@ -1,6 +1,5 @@
 import { TelegramBot } from 'node-telegram-bot-api';
 import { KeyboardOptions } from './interfaces';
-
 export function getMainKeyboard(showContact: boolean, language: string = 'uz'): TelegramBot.SendMessageOptions['reply_markup'] {
   const keyboard: TelegramBot.KeyboardButton[][] = [
     [
@@ -15,6 +14,9 @@ export function getMainKeyboard(showContact: boolean, language: string = 'uz'): 
       { text: language === 'uz' ? 'ℹ️ Biz haqimizda' : 'ℹ️ О нас' },
       { text: language === 'uz' ? '🆘 Yordam' : '🆘 Помощь' },
     ],
+    [
+      { text: '🌐 ' + (language === 'uz' ? 'Tilni o‘zgartirish' : 'Изменить язык') },
+    ]
   ];
 
   if (showContact) {

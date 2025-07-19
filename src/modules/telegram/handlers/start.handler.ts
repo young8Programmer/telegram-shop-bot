@@ -69,7 +69,7 @@ export class StartHandler {
             : '✅ Til allaqachon o‘zbek tilida!';
           await this.telegramService.sendMessage(chatId, message, {
             parse_mode: 'HTML',
-            reply_markup: getMainKeyboard(false, newLang),
+            reply_markup: getMainKeyboard(user.phone ? false : true, newLang),
           });
           return;
         }
@@ -80,7 +80,7 @@ export class StartHandler {
           : '✅ Til o‘zbekchaga o‘zgartirildi!';
         await this.telegramService.sendMessage(chatId, confirmMessage, {
           parse_mode: 'HTML',
-          reply_markup: getMainKeyboard(false, newLang),
+          reply_markup: getMainKeyboard(user.phone ? false : true, newLang),
         });
 
         if (!user.phone) {

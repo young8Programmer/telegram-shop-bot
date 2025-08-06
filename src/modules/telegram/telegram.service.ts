@@ -6,12 +6,11 @@ import { OrderService } from '../order/order.service';
 import { DeliveryService } from '../delivery/delivery.service';
 import { formatOrderList, formatUserList, formatProductList, formatCategoryList, formatFeedbackList } from './utils/helpers';
 import { getMainKeyboard } from './utils/keyboards';
-
 @Injectable()
 export class TelegramService {
   private bot: TelegramBot;
   private logger = new Logger(TelegramService.name);
-  private readonly adminTelegramUser = 'Vali_003';
+  private readonly adminTelegramUser: string;
 
   constructor(
     private configService: ConfigService,
@@ -19,23 +18,28 @@ export class TelegramService {
     @Inject(forwardRef(() => OrderService)) private readonly orderService: OrderService,
     private deliveryService: DeliveryService,
   ) {
-    const token = '7942071036:AAFz_o_p2p2o-Gq-1C1YZMQSdODCHJiu2dY';
+    
+    const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    const webhookUrl = this.configService.get<string>('WEBHOOK_URL');
+    this.adminTelegramUser = this.configService.get<string>('ADMIN_TELEGRAM_USERNAME') || 'Vali_003';
+
     if (!token) {
       this.logger.error('TELEGRAM_BOT_TOKEN is not defined in .env file');
       throw new Error('TELEGRAM_BOT_TOKEN is not defined');
     }
+
+    if (!webhookUrl) {
+      this.logger.error('WEBHOOK_URL is not defined in .env file');
+      throw new Error('WEBHOOK_URL is not defined');
+    }
+
     this.bot = new TelegramBot(token, { polling: false });
-    this.setupWebhook();
+    this.setupWebhook(webhookUrl);
     this.setupCommands();
   }
 
-  private async setupWebhook() {
+  private async setupWebhook(webhookUrl: string) {
     try {
-      const webhookUrl = 'https://telegram-shop-bot-production.up.railway.app/telegram/webhook';
-      if (!webhookUrl) {
-        this.logger.error('WEBHOOK_URL is not defined in .env file');
-        throw new Error('WEBHOOK_URL is not defined');
-      }
       this.logger.log(`Setting webhook to ${webhookUrl}`);
       const startTime = Date.now();
       await this.bot.setWebHook(webhookUrl);

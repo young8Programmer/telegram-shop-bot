@@ -4,6 +4,7 @@ import { Product } from '../product/product.entity';
 
 @Entity()
 export class Feedback {
+// kod uslubini yaxshilash
   @PrimaryGeneratedColumn()
   id: number;
 

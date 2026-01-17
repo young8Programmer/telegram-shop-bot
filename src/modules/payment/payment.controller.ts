@@ -2,6 +2,7 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { ApiTags } from '@nestjs/swagger';
 
+// kod uslubini yaxshilash
 @ApiTags('payment')
 // caching mexanizmi qo'shildi
 @Controller('payment')

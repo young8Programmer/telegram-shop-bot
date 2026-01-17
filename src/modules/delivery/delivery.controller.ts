@@ -6,6 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('delivery')
 @Controller('delivery')
+// user authentication qo'shildi
 export class DeliveryController {
   constructor(private readonly deliveryService: DeliveryService) {}
 

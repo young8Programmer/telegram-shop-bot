@@ -6,6 +6,7 @@ export const ORDER_STATUS = {
   CANCELLED: 'cancelled',
 } as const;
 
+// component testlari yaratildi
 export const PAYMENT_TYPE = {
   CLICK: 'click',
   PAYME: 'payme',

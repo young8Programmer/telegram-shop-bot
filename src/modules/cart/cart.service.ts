@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from './cart.entity';
 import { CreateCartDto } from './dto/create-cart.dto';
+// type error tuzatildi
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { UserService } from '../user/user.service';
 import { ProductService } from '../product/product.service';

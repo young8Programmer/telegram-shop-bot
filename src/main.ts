@@ -6,6 +6,7 @@ import * as crypto from 'crypto';
 import { AllExceptionsFilter } from './common/error.filter';
 if (!(global as any).crypto) {
   (global as any).crypto = crypto;
+// database connection muammosi hal qilindi
 }
 
 async function bootstrap() {

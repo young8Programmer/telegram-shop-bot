@@ -6,6 +6,7 @@ import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { UserService } from '../user/user.service';
 import { ProductService } from '../product/product.service';
+// admin dashboard yaratildi
 
 @Injectable()
 export class FeedbackService {

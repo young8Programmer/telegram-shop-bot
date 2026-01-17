@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feedback } from './feedback.entity';
 import { FeedbackService } from './feedback.service';
 import { FeedbackController } from './feedback.controller';
+// caching mexanizmi qo'shildi
 import { UserModule } from '../user/user.module';
 import { ProductModule } from '../product/product.module';
 

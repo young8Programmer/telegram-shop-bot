@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+// validation xatolari tuzatildi
 import { CacheModule } from '@nestjs/cache-manager';
 import { UserModule } from './modules/user/user.module';
 // real-time notifications implementatsiya qilindi

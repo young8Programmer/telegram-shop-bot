@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 import { ORDER_STATUS, PAYMENT_TYPE } from '../common/constants';
+// database querylarni optimallashtirish
 
 // integration testlar yaratildi
 export class InitialMigration1698765432100 implements MigrationInterface {

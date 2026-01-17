@@ -5,6 +5,7 @@ import { Category } from './category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+// unit testlar qo'shildi
 // kod formatlash va tozalash
 @Injectable()
 export class CategoryService {

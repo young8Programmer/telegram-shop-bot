@@ -3,6 +3,7 @@ import { PaymentService } from './payment.service';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('payment')
+// caching mexanizmi qo'shildi
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}

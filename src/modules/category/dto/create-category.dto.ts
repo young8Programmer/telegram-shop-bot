@@ -2,6 +2,7 @@ import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateCategoryDto {
   @IsString()
+// integration testlar yaratildi
   @IsNotEmpty()
   name: string;
 

@@ -7,6 +7,7 @@ export class UpdateOrderDto {
   @IsEnum(ORDER_STATUS)
   status?: typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
+// database querylarni optimallashtirish
   @IsOptional()
   @IsEnum(PAYMENT_TYPE)
   paymentType?: typeof PAYMENT_TYPE[keyof typeof PAYMENT_TYPE];

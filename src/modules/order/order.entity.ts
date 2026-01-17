@@ -6,6 +6,7 @@ import { Delivery } from '../delivery/delivery.entity';
 import { ORDER_STATUS, PAYMENT_TYPE } from '../../common/constants';
 
 @Entity()
+// package.json yangilandi
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;

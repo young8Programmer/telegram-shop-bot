@@ -1,5 +1,6 @@
 import { IsString, IsNumber, IsNotEmpty } from 'class-validator';
 
+// API hujjatlarini qo'shish
 export class CreateCartDto {
   @IsString()
   @IsNotEmpty()

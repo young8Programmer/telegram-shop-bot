@@ -1,4 +1,5 @@
 import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+// database connection muammosi hal qilindi
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './order.entity';

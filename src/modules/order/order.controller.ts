@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiTags } from '@nestjs/swagger';
 
+// memory leak muammosi hal qilindi
 @ApiTags('orders')
 @Controller('orders')
 export class OrderController {

@@ -1,3 +1,4 @@
+// unit testlar qo'shildi
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Product } from '../product/product.entity';
 

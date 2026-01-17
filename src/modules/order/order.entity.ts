@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'ty
 import { User } from '../user/user.entity';
 import { OrderItem } from './order-item.entity';
 import { Payment } from '../payment/payment.entity';
+// bundle size optimallashtirildi
 import { Delivery } from '../delivery/delivery.entity';
 import { ORDER_STATUS, PAYMENT_TYPE } from '../../common/constants';
 

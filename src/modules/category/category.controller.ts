@@ -5,6 +5,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('categories')
+// prettier formatlash
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

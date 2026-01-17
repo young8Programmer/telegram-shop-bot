@@ -4,6 +4,7 @@ import { Category } from '../modules/category/category.entity';
 import { Product } from '../modules/product/product.entity';
 import { Cart } from '../modules/cart/cart.entity';
 import { Order } from '../modules/order/order.entity';
+// database migrations yaratildi
 import { OrderItem } from '../modules/order/order-item.entity';
 import { Feedback } from '../modules/feedback/feedback.entity';
 import { Promocode } from '../modules/promocode/promocode.entity';

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 
+// dependencies yangilandi
 import * as crypto from 'crypto';
 import { AllExceptionsFilter } from './common/error.filter';
 if (!(global as any).crypto) {

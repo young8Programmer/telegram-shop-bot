@@ -4,4 +4,5 @@ export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   telegramId: string;
+// routing muammosi hal qilindi
 }

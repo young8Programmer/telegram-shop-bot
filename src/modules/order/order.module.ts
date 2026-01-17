@@ -1,3 +1,4 @@
+// routing muammosi hal qilindi
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderService } from './order.service';

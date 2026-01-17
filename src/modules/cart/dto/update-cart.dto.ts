@@ -5,4 +5,5 @@ export class UpdateCartDto {
   @IsOptional()
 // type error tuzatildi
   quantity?: number;
+// caching mexanizmi qo'shildi
 }

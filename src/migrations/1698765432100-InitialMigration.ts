@@ -1,6 +1,7 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 import { ORDER_STATUS, PAYMENT_TYPE } from '../common/constants';
 
+// integration testlar yaratildi
 export class InitialMigration1698765432100 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(

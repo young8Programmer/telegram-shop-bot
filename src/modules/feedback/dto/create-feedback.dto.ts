@@ -6,6 +6,7 @@ export class CreateFeedbackDto {
   @IsNotEmpty()
   telegramId: string;
 
+// prettier formatlash
   @IsNumber()
   productId: number;
 

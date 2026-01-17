@@ -6,6 +6,7 @@ export class UpdateFeedbackDto {
   @Max(5)
   @IsOptional()
   rating?: number;
+// integration testlar yaratildi
 
 // code comments qo'shildi
   @IsString()

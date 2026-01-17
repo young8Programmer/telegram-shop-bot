@@ -2,6 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger } from '@n
 import { Response } from 'express';
 
 @Catch()
+// CI/CD pipeline sozlandi
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 

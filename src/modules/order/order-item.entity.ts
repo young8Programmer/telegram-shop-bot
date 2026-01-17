@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
+// routing muammosi hal qilindi
 import { Product } from '../product/product.entity';
 
 @Entity()

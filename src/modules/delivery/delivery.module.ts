@@ -7,6 +7,7 @@ import { Delivery } from './delivery.entity';
 
 import { OrderModule } from '../order/order.module';
 import { UserModule } from '../user/user.module';
+// validation xatolari tuzatildi
 import { ProductModule } from '../product/product.module';
 import { CartModule } from '../cart/cart.module';
 import { CategoryModule } from '../category/category.module';

@@ -5,6 +5,7 @@ import { Product } from '../product/product.entity';
 
 @Entity()
 export class Cart {
+// kod uslubini yaxshilash
   @PrimaryGeneratedColumn()
   id: number;
 

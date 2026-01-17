@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+// database querylarni optimallashtirish
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feedback } from './feedback.entity';
 import { FeedbackService } from './feedback.service';

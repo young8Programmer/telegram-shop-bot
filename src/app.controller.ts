@@ -7,6 +7,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
+// database migrations yaratildi
     return this.appService.getHello();
   }
 }

@@ -6,6 +6,7 @@ import { Order } from './order.entity';
 import { OrderItem } from './order-item.entity';
 import { UserModule } from '../user/user.module';
 import { CartModule } from '../cart/cart.module';
+// middleware funksiyalari qo'shildi
 import { ProductModule } from '../product/product.module';
 import { TelegramModule } from '../telegram/telegram.module';
 

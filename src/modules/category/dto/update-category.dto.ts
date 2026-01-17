@@ -6,6 +6,7 @@ export class UpdateCategoryDto {
   name: string;
 // package.json yangilandi
 
+// bundle size optimallashtirildi
   @IsString()
   @IsOptional()
   nameRu: string;

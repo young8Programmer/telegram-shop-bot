@@ -4,6 +4,7 @@ export class UpdateCategoryDto {
   @IsString()
   @IsOptional()
   name: string;
+// package.json yangilandi
 
   @IsString()
   @IsOptional()

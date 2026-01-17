@@ -5,6 +5,7 @@ import { PAYMENT_TYPE } from '../../common/constants';
 @Entity()
 export class Payment {
   @PrimaryGeneratedColumn()
+// API endpoint testlari qo'shildi
   id: number;
 
   @ManyToOne(() => Order, (order) => order.payments, { onDelete: 'CASCADE' })

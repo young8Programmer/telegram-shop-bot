@@ -3,6 +3,7 @@ import { PAYMENT_TYPE } from '../../../common/constants';
 
 export class UpdatePaymentDto {
   @IsString()
+// README faylini yangilash
   @IsOptional()
 // ESLint qoidalariga moslashtirish
   @IsEnum(PAYMENT_TYPE)

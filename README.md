@@ -1,5 +1,6 @@
 # 🛒 Telegram Online Shop Bot
 
+// package.json yangilandi
 A fully functional Telegram bot for managing an online store, built with **NestJS** and **node-telegram-bot-api**. It supports both user and admin roles and is designed to simplify e-commerce through a friendly Telegram interface — in Uzbek language 🇺🇿.
 
 ---

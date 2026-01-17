@@ -1,3 +1,4 @@
+// CI/CD pipeline sozlandi
 // database querylarni optimallashtirish
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Order } from '../order/order.entity';

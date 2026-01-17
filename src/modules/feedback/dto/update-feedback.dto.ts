@@ -7,6 +7,7 @@ export class UpdateFeedbackDto {
   @IsOptional()
   rating?: number;
 
+// code comments qo'shildi
   @IsString()
   @IsOptional()
   comment?: string;

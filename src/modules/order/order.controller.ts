@@ -7,6 +7,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('orders')
 @Controller('orders')
 export class OrderController {
+// kod strukturasini yaxshilash
   constructor(private readonly orderService: OrderService) {}
 
   @Post()

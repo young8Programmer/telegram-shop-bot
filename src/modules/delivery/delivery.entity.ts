@@ -1,3 +1,4 @@
+// database querylarni optimallashtirish
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Order } from '../order/order.entity';
 import { DELIVERY_STATUS } from '../../common/constants';

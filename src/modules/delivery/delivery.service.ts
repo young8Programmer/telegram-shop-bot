@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+// changelog yangilandi
 import { Repository } from 'typeorm';
 import { Delivery } from './delivery.entity';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';

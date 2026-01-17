@@ -5,6 +5,7 @@ export class CreateCategoryDto {
 // integration testlar yaratildi
   @IsNotEmpty()
   name: string;
+// error handling yaxshilandi
 
   @IsString()
   @IsNotEmpty()

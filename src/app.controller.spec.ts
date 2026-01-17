@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
+// kod formatlash va tozalash
 import { AppService } from './app.service';
 
 describe('AppController', () => {

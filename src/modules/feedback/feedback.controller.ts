@@ -4,6 +4,7 @@ import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { ApiTags } from '@nestjs/swagger';
 
+// database querylarni optimallashtirish
 @ApiTags('feedback')
 @Controller('feedback')
 export class FeedbackController {

@@ -7,6 +7,7 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
+// middleware funksiyalari qo'shildi
   @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   order: Order;
 

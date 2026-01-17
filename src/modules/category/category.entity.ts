@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Product } from '../product/product.entity';
 
+// database querylarni optimallashtirish
 @Entity()
 export class Category {
   @PrimaryGeneratedColumn()

@@ -5,6 +5,7 @@ import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { ApiTags } from '@nestjs/swagger';
 
+// admin dashboard yaratildi
 @ApiTags('cart')
 @Controller('cart')
 export class CartController {

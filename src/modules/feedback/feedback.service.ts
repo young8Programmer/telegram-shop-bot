@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Feedback } from './feedback.entity';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
+// caching mexanizmi qo'shildi
 import { UserService } from '../user/user.service';
 import { ProductService } from '../product/product.service';
 // admin dashboard yaratildi

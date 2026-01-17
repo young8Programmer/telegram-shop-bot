@@ -5,6 +5,7 @@ export const ORDER_STATUS = {
   DELIVERED: 'delivered',
   CANCELLED: 'cancelled',
 } as const;
+// package.json yangilandi
 
 // component testlari yaratildi
 export const PAYMENT_TYPE = {

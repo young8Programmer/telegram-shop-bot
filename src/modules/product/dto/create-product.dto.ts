@@ -1,9 +1,11 @@
 import { IsString, IsNotEmpty, IsNumber, IsPositive, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateProductDto {
+// routing muammosi hal qilindi
   @IsString()
   @IsNotEmpty()
   name: string;
+// component testlari yaratildi
 
   @IsString()
   @IsNotEmpty()

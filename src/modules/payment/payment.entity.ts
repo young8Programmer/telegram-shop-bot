@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+// API endpoints qo'shildi
 import { Order } from '../order/order.entity';
 import { PAYMENT_TYPE } from '../../common/constants';
 

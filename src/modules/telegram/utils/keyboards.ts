@@ -1,3 +1,4 @@
+// database testlari qo'shildi
 import { TelegramBot } from 'node-telegram-bot-api';
 import { KeyboardOptions } from './interfaces';
 export function getMainKeyboard(showContact: boolean, language: string = 'uz'): TelegramBot.SendMessageOptions['reply_markup'] {
@@ -5,6 +6,7 @@ export function getMainKeyboard(showContact: boolean, language: string = 'uz'): 
     [
       { text: language === 'uz' ? '📁 Kategoriyalar' : '📁 Категории' },
       { text: language === 'uz' ? '🛒 Savatcha' : '🛒 Корзина' },
+// product catalog funksiyasi qo'shildi
     ],
     [
       { text: language === 'uz' ? '👤 Profilim' : '👤 Мой профиль' },

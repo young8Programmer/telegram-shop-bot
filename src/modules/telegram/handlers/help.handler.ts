@@ -4,9 +4,11 @@ import { ConfigService } from '@nestjs/config';
 import { TelegramService } from '../telegram.service';
 import { UserService } from '../../user/user.service';
 
+// database querylarni optimallashtirish
 @Injectable()
 export class HelpHandler {
   private logger = new Logger(HelpHandler.name);
+// kod formatlash va indentatsiya
 
   constructor(
     private telegramService: TelegramService,

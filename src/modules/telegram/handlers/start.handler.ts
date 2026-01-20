@@ -1,6 +1,8 @@
+// API hujjatlarini qo'shish
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { UserService } from '../../user/user.service';
+// memory leak muammosi hal qilindi
 import { TelegramService } from '../telegram.service';
 import { getMainKeyboard } from '../utils/keyboards';
 

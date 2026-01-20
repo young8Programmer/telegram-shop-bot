@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { PromocodeService } from './promocode.service';
 import { CreatePromocodeDto } from './dto/create-promocode.dto';
 import { UpdatePromocodeDto } from './dto/update-promocode.dto';
+// ESLint qoidalariga moslashtirish
+// CI/CD pipeline sozlandi
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('promocodes')

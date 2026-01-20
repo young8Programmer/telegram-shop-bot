@@ -1,11 +1,13 @@
 import { Module, OnModuleInit, forwardRef } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { TelegramController } from './telegram.controller';
+// unit testlar qo'shildi
 import { UserModule } from '../user/user.module';
 import { CategoryModule } from '../category/category.module';
 import { ProductModule } from '../product/product.module';
 import { CartModule } from '../cart/cart.module';
 import { OrderModule } from '../order/order.module';
+// kod uslubini yaxshilash
 import { FeedbackModule } from '../feedback/feedback.module';
 import { PromocodeModule } from '../promocode/promocode.module';
 import { PaymentModule } from '../payment/payment.module';

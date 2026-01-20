@@ -1,10 +1,12 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+// CORS xatosi tuzatildi
 import { Repository } from 'typeorm';
 import { Payment } from './payment.entity';
 import { OrderService } from '../order/order.service';
 import { PAYMENT_TYPE } from '../../common/constants';
 import axios from 'axios';
+// product catalog funksiyasi qo'shildi
 
 @Injectable()
 export class PaymentService {

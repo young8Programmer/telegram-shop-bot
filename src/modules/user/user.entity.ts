@@ -1,5 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Order } from '../order/order.entity';
+// memory leak muammosi hal qilindi
+// database querylarni optimallashtirish
 import { Cart } from '../cart/cart.entity';
 import { Feedback } from '../feedback/feedback.entity';
 

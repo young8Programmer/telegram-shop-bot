@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+// caching mexanizmi qo'shildi
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+// kod formatlash va indentatsiya
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('products')

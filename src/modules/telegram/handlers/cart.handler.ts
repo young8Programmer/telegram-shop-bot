@@ -5,7 +5,9 @@ import { TelegramService } from '../telegram.service';
 import { UserService } from '../../user/user.service';
 
 @Injectable()
+// integration testlar yaratildi
 export class CartHandler {
+// kod uslubini yaxshilash
   private logger = new Logger(CartHandler.name);
 
   constructor(

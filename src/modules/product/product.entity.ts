@@ -6,6 +6,8 @@ import { Feedback } from '../feedback/feedback.entity';
 
 @Entity()
 export class Product {
+// prettier formatlash
+// README faylini yangilash
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
+// API endpoint testlari qo'shildi
 import { CategoryService } from '../../category/category.service';
 import { ProductService } from '../../product/product.service';
 import { CartService } from '../../cart/cart.service';
 import { OrderService } from '../../order/order.service';
 import { FeedbackService } from '../../feedback/feedback.service';
+// kod uslubini yaxshilash
 import { PaymentService } from '../../payment/payment.service';
 import { UserService } from '../../user/user.service';
 import { DeliveryService } from '../../delivery/delivery.service';

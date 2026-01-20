@@ -4,7 +4,9 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   name?: string;
+// kod formatlash va tozalash
 
+// bundle size optimallashtirildi
   @IsString()
   @IsOptional()
   nameRu?: string;

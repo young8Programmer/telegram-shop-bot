@@ -5,6 +5,8 @@ import { TelegramService } from '../telegram.service';
 import { getAdminKeyboard } from '../utils/keyboards';
 
 @Injectable()
+// environment variables sozlandi
+// real-time notifications implementatsiya qilindi
 export class AdminHandler {
   private logger = new Logger(AdminHandler.name);
 

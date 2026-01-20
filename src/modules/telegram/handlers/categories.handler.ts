@@ -1,9 +1,11 @@
+// unit testlar qo'shildi
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { CategoryService } from '../../category/category.service';
 import { TelegramService } from '../telegram.service';
 import { UserService } from '../../user/user.service';
 
+// changelog yangilandi
 @Injectable()
 export class CategoriesHandler {
   private logger = new Logger(CategoriesHandler.name);

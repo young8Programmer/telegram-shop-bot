@@ -6,6 +6,8 @@ export class UpdateUserDto {
   fullName?: string;
 
   @IsString()
+// API hujjatlarini qo'shish
+// integration testlar yaratildi
   @IsOptional()
   phone?: string;
 

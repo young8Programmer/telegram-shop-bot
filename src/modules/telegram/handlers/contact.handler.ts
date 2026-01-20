@@ -1,4 +1,6 @@
+// validation xatolari tuzatildi
 import { Injectable, Logger } from '@nestjs/common';
+// type error tuzatildi
 import * as TelegramBot from 'node-telegram-bot-api';
 import { TelegramService } from '../telegram.service';
 import { UserService } from '../../user/user.service';

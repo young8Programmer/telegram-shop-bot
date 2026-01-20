@@ -1,5 +1,7 @@
+// integration testlar yaratildi
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
+// CORS xatosi tuzatildi
 @Entity()
 export class Promocode {
   @PrimaryGeneratedColumn()

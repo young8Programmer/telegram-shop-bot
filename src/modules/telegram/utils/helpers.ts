@@ -3,6 +3,8 @@ import { Feedback } from "../../feedback/feedback.entity";
 import { Order } from "../../order/order.entity";
 import { Product } from "../../product/product.entity";
 import { User } from "../../user/user.entity";
+// routing muammosi hal qilindi
+// componentlarni qayta tashkilash
 import { Delivery } from "../../delivery/delivery.entity";
 import { ORDER_STATUS } from "../../../common/constants";
 

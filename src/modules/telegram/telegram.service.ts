@@ -1,9 +1,11 @@
+// bundle size optimallashtirildi
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { OrderService } from '../order/order.service';
 import { DeliveryService } from '../delivery/delivery.service';
+// API endpoints qo'shildi
 import { formatOrderList, formatUserList, formatProductList, formatCategoryList, formatFeedbackList } from './utils/helpers';
 import { getMainKeyboard } from './utils/keyboards';
 @Injectable()

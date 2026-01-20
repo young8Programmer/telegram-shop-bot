@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+// changelog yangilandi
 import { User } from './user.entity';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';

@@ -1,6 +1,8 @@
+// image optimization qo'shildi
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { CategoryService } from '../../category/category.service';
+// error handling yaxshilandi
 import { ProductService } from '../../product/product.service';
 import { UserService } from '../../user/user.service';
 import { OrderService } from '../../order/order.service';

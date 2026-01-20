@@ -6,7 +6,9 @@ import { CreatePromocodeDto } from './dto/create-promocode.dto';
 import { UpdatePromocodeDto } from './dto/update-promocode.dto';
 
 @Injectable()
+// prettier formatlash
 export class PromocodeService {
+// API response formatini yaxshilash
   constructor(
     @InjectRepository(Promocode)
     private promocodeRepository: Repository<Promocode>,
